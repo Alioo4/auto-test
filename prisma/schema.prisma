@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String
+  phone      String 
+  email      String? 
+  password   String
+  blance     Decimal @default(0.00) @db.Decimal(10, 2)
+  role       Role    @default(USER)
+  isRegister Boolean @default(false)
+  lastAccountTranferDate DateTime? 
+  accessUntilDate DateTime? 
+
+  devices   Device[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([id])
+  @@unique([id, phone, email])
+  @@map("users")
+}
+
+model Device {
+  id         String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  os         Os
+  osVersion  String
+  deviceId   String @unique
+  deviceName String
+  deviceToken String @unique
+  isActive   Boolean @default(true) 
+  isBlocked  Boolean @default(false)
+  isRegistered Boolean @default(false)  
+  manufacturer String
+  model      String
+  appVersion String
+  appBuild   String
+  appName    String
+  appVersionCode String
+  appVersionName String
+
+  userId     String @db.Uuid
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([id])
+  @@unique([id, deviceId])
+  @@map("devices")
+}
+
+model Question {
+  id                Int              @id @default(autoincrement())
+  questionSetNumber Int
+  testNumber        Int
+  imgUrl            String?
+
+  translations      QuestionTranslation[]
+  options           Option[]
+  
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model QuestionTranslation {
+  id          Int      @id @default(autoincrement())
+  questionId  Int
+  language    Language
+  text        String
+
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, language])
+}
+
+model Option {
+  id          Int      @id @default(autoincrement())
+  questionId  Int
+  isCorrect   Boolean
+
+  translations OptionTranslation[]
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model OptionTranslation {
+  id        Int      @id @default(autoincrement())
+  optionId  Int
+  language  Language
+  text      String
+
+  option    Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([optionId, language])
+}
+
+enum Language {
+  uz
+  ru
+  en
+}
+
+enum Os {
+  ANDROID
+  IOS
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
