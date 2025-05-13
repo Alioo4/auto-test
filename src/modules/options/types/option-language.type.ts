@@ -1,0 +1,1 @@
+export type OptionLanguage = 'uz' | 'ru' | 'en';

@@ -34,6 +34,7 @@ async function bootstrap() {
         .setTitle('Avto Test API')
         .setDescription('Swagger documentation for the Avto Test module')
         .setVersion('1.0')
+        .addBearerAuth()
         .addTag('avto-test')
         .build();
 

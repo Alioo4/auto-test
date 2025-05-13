@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -11,9 +10,9 @@ datasource db {
 model User {
   id         String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name       String
-  phone      String 
-  email      String? 
-  password   String
+  phone      String @unique
+  email      String? @unique
+  password   String 
   blance     Decimal @default(0.00) @db.Decimal(10, 2)
   role       Role    @default(USER)
   isRegister Boolean @default(false)
@@ -32,23 +31,23 @@ model User {
 model Device {
   id         String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   os         Os
-  osVersion  String
+  osVersion  String?
   deviceId   String @unique
-  deviceName String
-  deviceToken String @unique
+  deviceName String?
+  deviceToken String? @unique
   isActive   Boolean @default(true) 
   isBlocked  Boolean @default(false)
   isRegistered Boolean @default(false)  
-  manufacturer String
-  model      String
-  appVersion String
-  appBuild   String
-  appName    String
-  appVersionCode String
-  appVersionName String
+  manufacturer String?
+  model      String?
+  appVersion String?
+  appBuild   String?
+  appName    String?
+  appVersionCode String?
+  appVersionName String?
 
-  userId     String @db.Uuid
-  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String? @db.Uuid
+  user       User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -60,52 +59,61 @@ model Device {
 
 model Question {
   id                Int              @id @default(autoincrement())
+  question_uz       String           @db.VarChar(256)
+  question_ru       String           @db.VarChar(256)
+  question_en       String           @db.VarChar(256)
   questionSetNumber Int
   testNumber        Int
-  imgUrl            String?
+  imgUrl            String?          @db.VarChar(64)
 
-  translations      QuestionTranslation[]
-  options           Option[]
-  
+  optionsUz        optionsUz[]
+  optionsRu        optionsRu[]
+  optionsEn        optionsEn[]
+
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 }
 
-model QuestionTranslation {
-  id          Int      @id @default(autoincrement())
-  questionId  Int
-  language    Language
-  text        String
+model optionsUz {
+  id                Int              @id @default(autoincrement())
+  value             String           @db.VarChar(256)
+  isCorrect         Boolean
 
-  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId        Int
+  question          Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
-  @@unique([questionId, language])
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@map("options_uz")
 }
 
-model Option {
-  id          Int      @id @default(autoincrement())
-  questionId  Int
-  isCorrect   Boolean
+model optionsRu {
+  id                Int              @id @default(autoincrement())
+  value             String           @db.VarChar(256)
+  isCorrect         Boolean
 
-  translations OptionTranslation[]
-  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId        Int
+  question          Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@map("options_ru")
 }
 
-model OptionTranslation {
-  id        Int      @id @default(autoincrement())
-  optionId  Int
-  language  Language
-  text      String
+model optionsEn {
+  id                Int              @id @default(autoincrement())
+  value             String           @db.VarChar(256)
+  isCorrect         Boolean
 
-  option    Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  questionId        Int
+  question          Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
-  @@unique([optionId, language])
-}
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 
-enum Language {
-  uz
-  ru
-  en
+  @@map("options_en")
 }
 
 enum Os {
