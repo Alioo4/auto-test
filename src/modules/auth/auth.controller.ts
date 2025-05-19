@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Headers, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Post, Body, Headers, Get, HttpCode, HttpStatus, Query, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
     HeadersDataDto,
@@ -9,11 +9,12 @@ import {
     GetAllUsersQuery,
 } from './dto';
 import { User } from './guards/get-user-id.decorator';
-import { Public, Roles } from './guards';
+import { AuthGuard, Public, Roles } from './guards';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger';
 
-@ApiTags('Auth')
-@ApiBearerAuth('access_token')
+@ApiTags('auth')
+@UseGuards(AuthGuard)
+@ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}

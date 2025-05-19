@@ -12,7 +12,7 @@ import { AuthGuard } from './guards';
         {
             provide: 'APP_GUARD',
             useClass: AuthGuard,
-        }
+        },
     ],
 })
 export class AuthModule {}

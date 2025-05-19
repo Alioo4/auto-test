@@ -13,7 +13,7 @@ model User {
   phone      String @unique
   email      String? @unique
   password   String 
-  blance     Decimal @default(0.00) @db.Decimal(10, 2)
+  blance     Decimal? @default(0.00) @db.Decimal(10, 2)
   role       Role    @default(USER)
   isRegister Boolean @default(false)
   lastAccountTranferDate DateTime? 
@@ -65,6 +65,8 @@ model Question {
   questionSetNumber Int
   testNumber        Int
   imgUrl            String?          @db.VarChar(64)
+  comment           String?          @db.VarChar(512)
+  expertComment     String?          @db.VarChar(512) @map("expert_commit")
 
   optionsUz        optionsUz[]
   optionsRu        optionsRu[]

@@ -16,6 +16,8 @@ export class DeviceHeadersGuard implements CanActivate {
             throw new BadRequestException(errors);
         }
 
+        
+
         request.userDevice = deviceDto;
         return true;
     }

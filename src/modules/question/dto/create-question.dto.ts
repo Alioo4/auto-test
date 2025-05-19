@@ -1,5 +1,4 @@
-import { IsString, IsInt, IsOptional, IsArray, ValidateNested, IsBoolean } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsInt, IsOptional, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class OptionDto {
@@ -38,32 +37,5 @@ export class CreateQuestionDto {
     @IsOptional()
     @IsString()
     imgUrl?: string;
-
-    @ApiProperty({
-        type: [OptionDto],
-        description: 'Variantlar (UZ)',
-    })
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => OptionDto)
-    optionsUz: OptionDto[];
-
-    @ApiProperty({
-        type: [OptionDto],
-        description: 'Variantlar (RU)',
-    })
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => OptionDto)
-    optionsRu: OptionDto[];
-
-    @ApiProperty({
-        type: [OptionDto],
-        description: 'Variantlar (EN)',
-    })
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => OptionDto)
-    optionsEn: OptionDto[];
 }
 
