@@ -38,7 +38,7 @@ export class UploadsService implements OnModuleInit {
 
       return {
         data: {
-          url: `http://localhost:8080/uploads/${filename}`,
+          url: `alibekmoyliyev.uz/uploads/${filename}`,
         }
       }
     } catch (error) {
