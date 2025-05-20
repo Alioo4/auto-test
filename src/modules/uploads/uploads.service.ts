@@ -27,7 +27,7 @@ export class UploadsService implements OnModuleInit {
     }
   }
 
-  async saveFile(file: Express.Multer.File): Promise<{ uuid: string; url: string }> {
+  async saveFile(file: Express.Multer.File): Promise<{ data: { url: string } }> {
     try {
       const ext = extname(file.originalname);
       const uuid = randomUUID();
@@ -37,9 +37,10 @@ export class UploadsService implements OnModuleInit {
       await writeFile(filePath, file.buffer);
 
       return {
-        uuid,
-        url: `/uploads/${filename}`,
-      };
+        data: {
+          url: `http://localhost:8080/uploads/${filename}`,
+        }
+      }
     } catch (error) {
       throw new InternalServerErrorException('Failed to save file');
     }

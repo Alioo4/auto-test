@@ -27,7 +27,7 @@ export class UploadsController {
     })
     async uploadFile(
         @UploadedFile() file: Express.Multer.File
-    ): Promise<{ uuid: string; url: string }> {
+    ): Promise<{ data: { url: string } }> {
         return this.fileService.saveFile(file);
     }
 }
