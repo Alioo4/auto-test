@@ -64,7 +64,7 @@ model Question {
   question_en       String           @db.VarChar(256)
   questionSetNumber Int
   testNumber        Int
-  imgUrl            String?          @db.VarChar(64)
+  imgUrl            String?          @db.VarChar(256)
   comment           String?          @db.VarChar(512)
   expertComment     String?          @db.VarChar(512) @map("expert_commit")
 

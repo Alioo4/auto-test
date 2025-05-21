@@ -32,9 +32,6 @@ export class AuthGuard implements CanActivate {
       const token = authHeader.split(' ')[1];
       const { sub, role } = await this.authService.verifyToken(token);
 
-      console.log(sub, role);
-      
-
       (request as any).user = { sub, role };
 
       const requiredRoles = this.reflector.getAllAndOverride<Role[]>(

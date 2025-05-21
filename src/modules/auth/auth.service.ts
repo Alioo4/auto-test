@@ -225,12 +225,9 @@ export class AuthService {
 
     public async verifyToken(token: string) {
         try {
-            console.log(token);
-
             const decoded = await this.jwt.verifyAsync(token, {
                 secret: this.configService.get<string>('JWT_SECRET'),
             });
-            console.log(decoded);
 
             return decoded;
         } catch (error) {

@@ -21,7 +21,6 @@ export class UploadsService implements OnModuleInit {
   private ensureUploadDirectoryExists(): void {
     if (!fs.existsSync(this.uploadPath)) {
       fs.mkdirSync(this.uploadPath, { recursive: true });
-      console.log(`[FileService] Created directory: ${this.uploadPath}`);
     } else {
       console.log(`[FileService] Upload directory exists: ${this.uploadPath}`);
     }
