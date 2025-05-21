@@ -59,12 +59,12 @@ model Device {
 
 model Question {
   id                Int              @id @default(autoincrement())
-  question_uz       String           @db.VarChar(256)
-  question_ru       String           @db.VarChar(256)
-  question_en       String           @db.VarChar(256)
+  question_uz       String           @db.VarChar(512)
+  question_ru       String           @db.VarChar(512)
+  question_en       String           @db.VarChar(512)
   questionSetNumber Int
   testNumber        Int
-  imgUrl            String?          @db.VarChar(256)
+  imgUrl            String?          @db.VarChar(512)
   comment           String?          @db.VarChar(512)
   expertComment     String?          @db.VarChar(512) @map("expert_commit")
 
@@ -78,7 +78,7 @@ model Question {
 
 model optionsUz {
   id                Int              @id @default(autoincrement())
-  value             String           @db.VarChar(256)
+  value             String           @db.VarChar(512)
   isCorrect         Boolean
 
   questionId        Int
@@ -92,7 +92,7 @@ model optionsUz {
 
 model optionsRu {
   id                Int              @id @default(autoincrement())
-  value             String           @db.VarChar(256)
+  value             String           @db.VarChar(512)
   isCorrect         Boolean
 
   questionId        Int
@@ -106,7 +106,7 @@ model optionsRu {
 
 model optionsEn {
   id                Int              @id @default(autoincrement())
-  value             String           @db.VarChar(256)
+  value             String           @db.VarChar(512)
   isCorrect         Boolean
 
   questionId        Int
