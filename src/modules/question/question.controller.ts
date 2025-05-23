@@ -18,12 +18,14 @@ export class QuestionController {
         return this.questionService.create(createQuestionDto);
     }
 
+    @Public()
     @Get()
     @ApiOperation({ summary: 'Get all questions (with optional search and pagination)' })
     findAll() {
         return this.questionService.findAll();
     }
 
+    @Public()
     @Get(':id')
     @Roles('ADMIN')
     @ApiOperation({ summary: 'Get one question by ID' })
