@@ -3,6 +3,7 @@ import { QuestionService } from './question.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { Public, Roles } from '../auth/guards';
 
 @ApiTags('questions')
 @ApiBearerAuth()
@@ -11,6 +12,7 @@ export class QuestionController {
     constructor(private readonly questionService: QuestionService) {}
 
     @Post()
+    @Roles('ADMIN', 'SUPER_ADMIN')
     @ApiOperation({ summary: 'Create a new question' })
     create(@Body() createQuestionDto: CreateQuestionDto) {
         return this.questionService.create(createQuestionDto);
@@ -18,18 +20,12 @@ export class QuestionController {
 
     @Get()
     @ApiOperation({ summary: 'Get all questions (with optional search and pagination)' })
-    @ApiQuery({ name: 'search', required: false, type: String })
-    @ApiQuery({ name: 'page', required: false, type: Number })
-    @ApiQuery({ name: 'limit', required: false, type: Number })
-    findAll(
-        @Query('search') search?: string,
-        @Query('page') page?: number,
-        @Query('limit') limit?: number
-    ) {
-        return this.questionService.findAll({ search, page, limit });
+    findAll() {
+        return this.questionService.findAll();
     }
 
     @Get(':id')
+    @Roles('ADMIN')
     @ApiOperation({ summary: 'Get one question by ID' })
     @ApiParam({ name: 'id', type: Number })
     findOne(@Param('id') id: string) {
@@ -37,6 +33,7 @@ export class QuestionController {
     }
 
     @Patch(':id')
+    @Roles('ADMIN', 'SUPER_ADMIN')
     @ApiOperation({ summary: 'Update a question by ID' })
     @ApiParam({ name: 'id', type: Number })
     update(@Param('id') id: string, @Body() updateQuestionDto: UpdateQuestionDto) {
@@ -44,6 +41,7 @@ export class QuestionController {
     }
 
     @Delete(':id')
+    @Roles('ADMIN', 'SUPER_ADMIN')
     @ApiOperation({ summary: 'Delete a question by ID' })
     @ApiParam({ name: 'id', type: Number })
     remove(@Param('id') id: string) {
