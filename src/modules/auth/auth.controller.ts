@@ -1,7 +1,6 @@
 import { Controller, Post, Body, Headers, Get, HttpCode, HttpStatus, Query, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
-    HeadersDataDto,
     LoginAuthDto,
     RegisterAuthDto,
     ChangingRoleDto,
@@ -24,7 +23,7 @@ export class AuthController {
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: 'User registration' })
     @ApiBody({ type: RegisterAuthDto })
-    register(@Body() registerAuthDto: RegisterAuthDto, @Headers() headerData: HeadersDataDto) {
+    register(@Body() registerAuthDto: RegisterAuthDto) {
         return this.authService.register(registerAuthDto, 'deviceId');
     }
 
