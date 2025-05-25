@@ -5,6 +5,10 @@ import { ValidationPipe } from '@nestjs/common';
 import * as basicAuth from 'express-basic-auth';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+(BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+  };
+
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     const configService = app.get(ConfigService);
