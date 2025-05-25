@@ -26,6 +26,13 @@ export class QuestionController {
     }
 
     @Public()
+    @Get('get-count-questions')
+    @ApiOperation({ summary: 'Get the count of all questions' })
+    getCountQuestions() {
+        return this.questionService.countAllQuestions();
+    }
+
+    @Public()
     @Get(':id')
     @ApiOperation({ summary: 'Get one question by ID' })
     @ApiParam({ name: 'id', type: Number })

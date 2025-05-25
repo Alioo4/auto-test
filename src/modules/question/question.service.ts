@@ -45,7 +45,7 @@ export class QuestionService {
 
                 return {
                     ...q,
-                    id: q.id?.toString?.() || q.id, 
+                    id: q.id?.toString?.() || q.id,
                     questionSetNumber: q.questionSetNumber,
                     testNumber: q.testNumber,
                     optionsUz: optionsUz.map((o) => ({
@@ -67,9 +67,7 @@ export class QuestionService {
             })
         );
 
-        return {
-            data: enriched,
-        };
+        return enriched;
     }
 
     async findOne(id: number) {
@@ -96,4 +94,31 @@ export class QuestionService {
     async remove(id: number) {
         return await this.prisma.question.delete({ where: { id } });
     }
+
+    async countAllQuestions() {
+        const [allCount, testNumbers, setNumbers] = await Promise.all([
+          this.prisma.question.count(),
+      
+          this.prisma.question.findMany({
+            distinct: ['testNumber'],
+            select: { testNumber: true },
+          }),
+      
+          this.prisma.question.findMany({
+            distinct: ['questionSetNumber'],
+            select: { questionSetNumber: true },
+          }),
+        ]);
+      
+        return {
+          data: {
+            allCount,
+            testNumberCount: testNumbers.length,
+            questionSetNumberCount: setNumbers.length,
+          },
+          message: 'Total number of questions and unique test/set numbers',
+          status: 'success',
+        };
+      }
+      
 }
