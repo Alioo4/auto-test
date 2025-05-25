@@ -35,7 +35,6 @@ export class QuestionService {
             ORDER BY "testNumber", "questionSetNumber";
         `);
 
-        // 2. Har bir question uchun optionsUz / optionsRu / optionsEn olib kelish
         const enriched = await Promise.all(
             questions.map(async (q: any) => {
                 const [optionsUz, optionsRu, optionsEn] = await Promise.all([
@@ -46,7 +45,7 @@ export class QuestionService {
 
                 return {
                     ...q,
-                    id: q.id?.toString?.() || q.id, // bigint bo‘lsa oldini oladi
+                    id: q.id?.toString?.() || q.id, 
                     questionSetNumber: q.questionSetNumber,
                     testNumber: q.testNumber,
                     optionsUz: optionsUz.map((o) => ({
@@ -68,7 +67,9 @@ export class QuestionService {
             })
         );
 
-        return enriched;
+        return {
+            data: enriched,
+        };
     }
 
     async findOne(id: number) {
