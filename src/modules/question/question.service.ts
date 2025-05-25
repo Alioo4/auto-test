@@ -20,25 +20,52 @@ export class QuestionService {
     }
 
     async findAll() {
-        const questions = await this.prisma.$queryRawUnsafe(`
-          SELECT q.*, uz.id AS uz_id, uz.value AS uz_value, uz.isCorrect AS uz_correct,
-             ru.id AS ru_id, ru.value AS ru_value, ru.isCorrect AS ru_correct,
-             en.id AS en_id, en.value AS en_value, en.isCorrect AS en_correct
-FROM (
-  SELECT *, ROW_NUMBER() OVER (PARTITION BY "testNumber" ORDER BY RANDOM()) AS rn
-  FROM "Question"
-  WHERE "testNumber" BETWEEN 1 AND 10
-) q
-LEFT JOIN "options_uz" uz ON uz."questionId" = q.id
-LEFT JOIN "options_ru" ru ON ru."questionId" = q.id
-LEFT JOIN "options_en" en ON en."questionId" = q.id
-WHERE q.rn <= 10
+        const questions: any[] = await this.prisma.$queryRawUnsafe(`
+          SELECT * FROM (
+              SELECT q.*,
+                     ROW_NUMBER() OVER (PARTITION BY "testNumber" ORDER BY RANDOM()) AS rn
+              FROM "Question" q
+              WHERE "testNumber" BETWEEN 1 AND 10
+          ) sub
+          WHERE sub.rn <= 10
         `);
-
-        return {
-            data: questions,
-        };
-    }
+      
+        // 2. Har bir question uchun optionsUz / optionsRu / optionsEn olib kelish
+        const enriched = await Promise.all(
+          questions.map(async (q: any) => {
+            const [optionsUz, optionsRu, optionsEn] = await Promise.all([
+              this.prisma.optionsUz.findMany({ where: { questionId: q.id } }),
+              this.prisma.optionsRu.findMany({ where: { questionId: q.id } }),
+              this.prisma.optionsEn.findMany({ where: { questionId: q.id } }),
+            ]);
+      
+            return {
+              ...q,
+              id: q.id?.toString?.() || q.id, // bigint bo‘lsa oldini oladi
+              questionSetNumber: q.questionSetNumber,
+              testNumber: q.testNumber,
+              optionsUz: optionsUz.map((o) => ({
+                ...o,
+                id: o.id?.toString?.(),
+                questionId: o.questionId?.toString?.(),
+              })),
+              optionsRu: optionsRu.map((o) => ({
+                ...o,
+                id: o.id?.toString?.(),
+                questionId: o.questionId?.toString?.(),
+              })),
+              optionsEn: optionsEn.map((o) => ({
+                ...o,
+                id: o.id?.toString?.(),
+                questionId: o.questionId?.toString?.(),
+              })),
+            };
+          })
+        );
+      
+        return enriched;
+      }
+      
 
     async findOne(id: number) {
         return await this.prisma.question.findUnique({
