@@ -20,29 +20,25 @@ export class QuestionService {
     }
 
     async findAll() {
-        const questions: any[] = await this.prisma.$queryRawUnsafe(`
-          SELECT * FROM (
-              SELECT q.*,
-                     ROW_NUMBER() OVER (PARTITION BY "testNumber" ORDER BY RANDOM()) AS rn
-              FROM "Question" q
-              WHERE "testNumber" BETWEEN 1 AND 10
-          ) sub
-          WHERE sub.rn <= 10
+        const questions = await this.prisma.$queryRawUnsafe(`
+          SELECT q.*, uz.id AS uz_id, uz.value AS uz_value, uz.isCorrect AS uz_correct,
+             ru.id AS ru_id, ru.value AS ru_value, ru.isCorrect AS ru_correct,
+             en.id AS en_id, en.value AS en_value, en.isCorrect AS en_correct
+FROM (
+  SELECT *, ROW_NUMBER() OVER (PARTITION BY "testNumber" ORDER BY RANDOM()) AS rn
+  FROM "Question"
+  WHERE "testNumber" BETWEEN 1 AND 10
+) q
+LEFT JOIN "options_uz" uz ON uz."questionId" = q.id
+LEFT JOIN "options_ru" ru ON ru."questionId" = q.id
+LEFT JOIN "options_en" en ON en."questionId" = q.id
+WHERE q.rn <= 10
         `);
-      
-        // optional: optionslarni bog‘lash
-        const enriched = await Promise.all(
-          questions.map(async (q: any) => ({
-            ...q,
-            optionsUz: await this.prisma.optionsUz.findMany({ where: { questionId: q.id } }),
-            optionsRu: await this.prisma.optionsRu.findMany({ where: { questionId: q.id } }),
-            optionsEn: await this.prisma.optionsEn.findMany({ where: { questionId: q.id } }),
-          })),
-        );
-      
-        return enriched;
-      }
-      
+
+        return {
+            data: questions,
+        };
+    }
 
     async findOne(id: number) {
         return await this.prisma.question.findUnique({
