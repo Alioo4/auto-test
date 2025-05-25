@@ -27,7 +27,6 @@ export class QuestionController {
 
     @Public()
     @Get(':id')
-    @Roles('ADMIN')
     @ApiOperation({ summary: 'Get one question by ID' })
     @ApiParam({ name: 'id', type: Number })
     findOne(@Param('id') id: string) {

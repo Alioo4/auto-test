@@ -20,16 +20,29 @@ export class QuestionService {
     }
 
     async findAll() {
-        return await this.prisma.question.findMany({
-            take: 100,
-            orderBy: { createdAt: 'asc' },
-            include: {
-                optionsUz: true,
-                optionsRu: true,
-                optionsEn: true,
-            },
-        });
-    }
+        const questions: any[] = await this.prisma.$queryRawUnsafe(`
+          SELECT * FROM (
+              SELECT q.*,
+                     ROW_NUMBER() OVER (PARTITION BY "testNumber" ORDER BY RANDOM()) AS rn
+              FROM "Question" q
+              WHERE "testNumber" BETWEEN 1 AND 10
+          ) sub
+          WHERE sub.rn <= 10
+        `);
+      
+        // optional: optionslarni bog‘lash
+        const enriched = await Promise.all(
+          questions.map(async (q: any) => ({
+            ...q,
+            optionsUz: await this.prisma.optionsUz.findMany({ where: { questionId: q.id } }),
+            optionsRu: await this.prisma.optionsRu.findMany({ where: { questionId: q.id } }),
+            optionsEn: await this.prisma.optionsEn.findMany({ where: { questionId: q.id } }),
+          })),
+        );
+      
+        return enriched;
+      }
+      
 
     async findOne(id: number) {
         return await this.prisma.question.findUnique({

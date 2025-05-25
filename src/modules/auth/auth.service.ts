@@ -23,7 +23,6 @@ export class AuthService {
     async register(registerAuthDto: RegisterAuthDto, deviceId: string) {
         const { email, phone, password } = registerAuthDto;
 
-        // 1. Check for duplicate email or phone
         const existingUser = await this.prisma.user.findFirst({
             where: {
                 OR: [{ email }, { phone }],
@@ -31,11 +30,11 @@ export class AuthService {
         });
 
         if (existingUser) {
-            if (existingUser.email === email) {
-                throw new BadRequestException('Email already exists');
-            }
             if (existingUser.phone === phone) {
                 throw new BadRequestException('Phone number already exists');
+            }
+            if (existingUser.email === email) {
+                throw new BadRequestException('Email already exists');
             }
         }
 
@@ -59,19 +58,16 @@ export class AuthService {
 
         const token = await this.getToken(user.id, user.role);
 
-        // const device = await this.prisma.device.findUnique({
-        //     where: { id: deviceId },
-        //     select: {
-        //         id: true,
-        //     },
-        // });
+        const device = await this.prisma.device.count({
+            where: { deviceId: deviceId },
+        });
 
-        // if (device) {
-        //     await this.prisma.device.update({
-        //         where: { id: deviceId },
-        //         data: { userId: user.id },
-        //     });
-        // }
+        if (device) {
+            await this.prisma.device.update({
+                where: { deviceId: deviceId },
+                data: { userId: user.id },
+            });
+        }
 
         return {
             message: 'User registered successfully',

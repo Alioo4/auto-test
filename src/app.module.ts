@@ -7,6 +7,7 @@ import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { QuestionModule } from './modules/question/question.module';
 import { OptionsModule } from './modules/options/options.module';
+import { BannersModule } from './modules/banners/banners.module';
 
 @Module({
     imports: [
@@ -20,6 +21,7 @@ import { OptionsModule } from './modules/options/options.module';
         }),
         QuestionModule,
         OptionsModule,
+        BannersModule,
     ],
     controllers: [],
     providers: [],

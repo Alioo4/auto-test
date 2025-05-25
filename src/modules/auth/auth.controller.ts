@@ -1,4 +1,13 @@
-import { Controller, Post, Body, Headers, Get, HttpCode, HttpStatus, Query, UseGuards } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Query,
+    UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
     LoginAuthDto,
@@ -8,7 +17,7 @@ import {
     GetAllUsersQuery,
 } from './dto';
 import { User } from './guards/get-user-id.decorator';
-import { AuthGuard, Public, Roles } from './guards';
+import { AuthGuard, DeviceHeadersGuard, DeviceId, Public, Roles } from './guards';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags, ApiQuery } from '@nestjs/swagger';
 
 @ApiTags('auth')
@@ -23,8 +32,9 @@ export class AuthController {
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: 'User registration' })
     @ApiBody({ type: RegisterAuthDto })
-    register(@Body() registerAuthDto: RegisterAuthDto) {
-        return this.authService.register(registerAuthDto, 'deviceId');
+    @UseGuards(DeviceHeadersGuard)
+    register(@Body() registerAuthDto: RegisterAuthDto, @DeviceId() deviceId: string) {
+        return this.authService.register(registerAuthDto, deviceId);
     }
 
     @Public()

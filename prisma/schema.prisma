@@ -118,6 +118,22 @@ model optionsEn {
   @@map("options_en")
 }
 
+model banner {
+  id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title        String @db.VarChar(255)
+  description  String? @db.VarChar(512)
+  imageUrl     String? @db.VarChar(512)
+  link         String? @db.VarChar(512)
+  isActive     Boolean @default(true)
+  isBlocked    Boolean @default(false)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@id([id])
+  @@map("banners")
+}
+
 enum Os {
   ANDROID
   IOS
