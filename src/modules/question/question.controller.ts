@@ -4,6 +4,7 @@ import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { ApiTags, ApiOperation, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { Public, Roles } from '../auth/guards';
+import { GetQuestionsQueryDto } from './dto';
 
 @ApiTags('questions')
 @ApiBearerAuth()
@@ -23,6 +24,13 @@ export class QuestionController {
     @ApiOperation({ summary: 'Get all questions (with optional search and pagination)' })
     findAll() {
         return this.questionService.findAll();
+    }
+
+    @Get('get-questions-for-admin')
+    @Roles('ADMIN', 'SUPER_ADMIN')
+    @ApiOperation({ summary: 'Get all questions for admin with pagination' })
+    findAllForAdmin(@Query() query: GetQuestionsQueryDto) {
+        return this.questionService.findAllForAdmin(query);
     }
 
     @Public()
