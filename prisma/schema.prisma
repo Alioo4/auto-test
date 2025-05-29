@@ -10,18 +10,18 @@ datasource db {
 model User {
   id         String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name       String
-  phone      String @unique
-  email      String? @unique
+  phone      String   @unique
+  email      String?  @unique
   password   String 
-  blance     Decimal? @default(0.00) @db.Decimal(10, 2)
-  role       Role    @default(USER)
-  isRegister Boolean @default(false)
-  lastAccountTranferDate DateTime? 
-  accessUntilDate DateTime? 
+  countTrariff Int? @default(0) @map("count_trariff")
+  role       Role     @default(USER) 
+  lastAccountTranferDate DateTime? @map("last_account_tranfer_date")
+  startinglDateLimit     DateTime? @map("startingl_date_limit")
 
   devices   Device[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  promoCodes promoCode[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@id([id])
   @@unique([id, phone, email])
@@ -29,28 +29,28 @@ model User {
 }
 
 model Device {
-  id         String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id         String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   os         Os
-  osVersion  String?
-  deviceId   String @unique
-  deviceName String?
-  deviceToken String? @unique
-  isActive   Boolean @default(true) 
-  isBlocked  Boolean @default(false)
-  isRegistered Boolean @default(false)  
-  manufacturer String?
+  osVersion  String?             @map("os_version")
+  deviceId   String    @unique   @map("device_id")
+  deviceName String?             @map("device_name")
+  deviceToken String?  @unique   @map("device_token")
+  isActive   Boolean   @default(true)  @map("is_active")
+  isBlocked  Boolean   @default(false) @map("is_blocked")
+  isRegistered Boolean @default(false) @map("is_registered") 
+  manufacturer String?  
   model      String?
-  appVersion String?
-  appBuild   String?
-  appName    String?
-  appVersionCode String?
-  appVersionName String?
+  appVersion String?  @map("app_version")
+  appBuild   String?  @map("app_build")
+  appName    String?  @map("app_name")
+  appVersionCode String? @map("app_version_code")
+  appVersionName String? @map("app_version_name")
 
-  userId     String? @db.Uuid
-  user       User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String?  @db.Uuid @map("user_id")
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt  @map("updated_at")
 
   @@id([id])
   @@unique([id, deviceId])
@@ -132,6 +132,35 @@ model banner {
 
   @@id([id])
   @@map("banners")
+}
+
+model tariff {
+  id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title        String @db.VarChar(255)
+  day          Int   
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt      @map("updated_at")
+
+  @@id([id])
+  @@map("tariffs")
+}
+
+model promoCode {
+  id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  secretKey    String @db.VarChar(16) @map("secret_key")
+  disCount     Int @map("dis_count")
+  bonusDays    Int @map("bonus_days") @default(10)
+  agentBonus   Int @map("agent_bonus")
+
+  userId     String?  @db.Uuid @map("user_id")
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade) 
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt      @map("updated_at")
+
+  @@id([id])
+  @@map("promo_code")
 }
 
 enum Os {

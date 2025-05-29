@@ -214,6 +214,37 @@ export class AuthService {
         };
     }
 
+    async logout(userId: string, deviceId: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+            },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        const device = await this.prisma.device.findUnique({
+            where: { deviceId: deviceId },
+        });
+
+        if (!device) {
+            throw new NotFoundException('Device not found');
+        }
+
+        await this.prisma.device.update({
+            where: { deviceId: deviceId },
+            data: { userId: null },
+        });
+
+        return { message: 'User logged out successfully' };
+    }
+
     //Helper functions
     private async hashPass(pass: string) {
         return await hash(pass, 12);

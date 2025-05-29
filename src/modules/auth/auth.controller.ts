@@ -82,4 +82,12 @@ export class AuthController {
     getAllUsers(@Query() query: GetAllUsersQuery) {
         return this.authService.getAllUsers(query);
     }
+
+    @Post('logout')
+    @HttpCode(HttpStatus.OK)
+    @Roles('USER', 'ADMIN', 'SUPER_ADMIN')
+    @ApiOperation({ summary: 'User logout' })
+    logout(@User('sub') userId: string, @DeviceId() deviceId: string) {
+        return this.authService.logout(userId, deviceId);
+    }
 }
