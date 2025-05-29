@@ -1,26 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTariffDto } from './dto/create-tariff.dto';
 import { UpdateTariffDto } from './dto/update-tariff.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
-export class TariffsService {
-  create(createTariffDto: CreateTariffDto) {
-    return 'This action adds a new tariff';
-  }
+export class TariffService {
+    constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return `This action returns all tariffs`;
-  }
+    create(dto: CreateTariffDto) {
+        return this.prisma.tariff.create({ data: dto });
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tariff`;
-  }
+    findAll() {
+        return this.prisma.tariff.findMany({ orderBy: { createdAt: 'desc' } });
+    }
 
-  update(id: number, updateTariffDto: UpdateTariffDto) {
-    return `This action updates a #${id} tariff`;
-  }
+    findOne(id: string) {
+        return this.prisma.tariff.findUnique({ where: { id } });
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} tariff`;
-  }
+    update(id: string, dto: UpdateTariffDto) {
+        return this.prisma.tariff.update({ where: { id }, data: dto });
+    }
+
+    remove(id: string) {
+        return this.prisma.tariff.delete({ where: { id } });
+    }
 }

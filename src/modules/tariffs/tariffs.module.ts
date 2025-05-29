@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TariffsService } from './tariffs.service';
-import { TariffsController } from './tariffs.controller';
+import { TariffController } from './tariffs.controller';
+import { TariffService } from './tariffs.service';
 
 @Module({
-  controllers: [TariffsController],
-  providers: [TariffsService],
+    controllers: [TariffController],
+    providers: [TariffService],
 })
 export class TariffsModule {}
