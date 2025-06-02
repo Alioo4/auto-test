@@ -75,8 +75,6 @@ export class AuthService {
             throw new BadRequestException('Device already registered to another user');
         }
 
-    
-
         const token = await this.getToken(user.id, user.role);
 
         return {
