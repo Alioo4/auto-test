@@ -42,22 +42,6 @@ export class AuthService {
 
         const hashedPass = await this.hashPass(password);
 
-        const user = await this.prisma.user.create({
-            data: {
-                ...registerAuthDto,
-                password: hashedPass,
-            },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                phone: true,
-                role: true,
-                createdAt: true,
-                updatedAt: true,
-            },
-        });
-
         const device = await this.prisma.device.findUnique({
             where: { deviceId: deviceId },
             select: {
@@ -67,20 +51,36 @@ export class AuthService {
         });
 
         if (!device?.userId) {
+            const user = await this.prisma.user.create({
+                data: {
+                    ...registerAuthDto,
+                    password: hashedPass,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                    role: true,
+                    createdAt: true,
+                    updatedAt: true,
+                },
+            });
+
+            const token = await this.getToken(user.id, user.role);
+
             await this.prisma.device.update({
                 where: { deviceId: deviceId },
                 data: { userId: user.id },
             });
+
+            return {
+                message: 'User registered successfully',
+                data: { user, token },
+            };
         } else {
             throw new BadRequestException('Device already registered to another user');
         }
-
-        const token = await this.getToken(user.id, user.role);
-
-        return {
-            message: 'User registered successfully',
-            data: { user, token },
-        };
     }
 
     async login(loginAuthDto: LoginAuthDto, deviceId: string) {
