@@ -5,5 +5,6 @@ import { PromoService } from './promo-code.service';
 @Module({
   controllers: [PromoController],
   providers: [PromoService],
+  exports: [PromoService],
 })
 export class PromoCodeModule {}

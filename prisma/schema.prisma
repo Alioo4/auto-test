@@ -15,6 +15,7 @@ model User {
   password   String 
   countTrariff Int? @default(0) @map("count_trariff")
   role       Role     @default(USER) 
+  accessDevice String? @map("access_device")
   lastAccountTranferDate DateTime? @map("last_account_tranfer_date")
   startinglDateLimit     DateTime? @map("startingl_date_limit")
 
@@ -149,9 +150,9 @@ model tariff {
 model promoCode {
   id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   secretKey    String @db.VarChar(16) @map("secret_key")
-  disCount     Int @map("dis_count")
-  bonusDays    Int @map("bonus_days") @default(10)
-  agentBonus   Int @map("agent_bonus")
+  disCount     Int? @map("dis_count")
+  bonusDays    Int? @map("bonus_days") @default(10)
+  agentBonus   Int? @map("agent_bonus")
 
   userId     String?  @db.Uuid @map("user_id")
   user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade) 

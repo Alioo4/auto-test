@@ -7,8 +7,9 @@ import { UpdatePromoDto } from './dto/update-promo-code.dto';
 export class PromoService {
     constructor(private prisma: PrismaService) {}
 
-    create(dto: CreatePromoDto) {
-        return this.prisma.promoCode.create({ data: dto });
+    async create(dto: CreatePromoDto) {
+        const key = await this.generatePromoCode();
+        return this.prisma.promoCode.create({ data: { ...dto, secretKey: key } });
     }
 
     findAll() {
@@ -19,8 +20,8 @@ export class PromoService {
     }
 
     findOne(id: string) {
-        return this.prisma.promoCode.findUnique({
-            where: { id },
+        return this.prisma.promoCode.findFirst({
+            where: { userId: id },
             include: { user: true },
         });
     }
@@ -31,5 +32,14 @@ export class PromoService {
 
     remove(id: string) {
         return this.prisma.promoCode.delete({ where: { id } });
+    }
+
+    private async generatePromoCode(length = 6) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
     }
 }

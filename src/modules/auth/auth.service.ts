@@ -11,13 +11,15 @@ import {
     GetAllUsersQuery,
 } from './dto';
 import { Role } from '@prisma/client';
+import { PromoService } from '../promo-code/promo-code.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly jwt: JwtService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
+        private readonly promoCode: PromoService,
     ) {}
 
     async register(registerAuthDto: RegisterAuthDto, deviceId: string) {
@@ -56,18 +58,26 @@ export class AuthService {
             },
         });
 
-        const token = await this.getToken(user.id, user.role);
-
-        const device = await this.prisma.device.count({
+        const device = await this.prisma.device.findUnique({
             where: { deviceId: deviceId },
+            select: {
+                deviceId: true,
+                userId: true,
+            },
         });
 
-        if (device) {
+        if (!device?.userId) {
             await this.prisma.device.update({
                 where: { deviceId: deviceId },
                 data: { userId: user.id },
             });
+        } else {
+            throw new BadRequestException('Device already registered to another user');
         }
+
+    
+
+        const token = await this.getToken(user.id, user.role);
 
         return {
             message: 'User registered successfully',
@@ -75,7 +85,7 @@ export class AuthService {
         };
     }
 
-    async login(loginAuthDto: LoginAuthDto) {
+    async login(loginAuthDto: LoginAuthDto, deviceId: string) {
         const checkPhone = await this.prisma.user.findUnique({
             where: { phone: loginAuthDto.phone },
             select: {
@@ -98,6 +108,25 @@ export class AuthService {
 
         if (!checkPass) {
             throw new BadRequestException('Phone number or password is incorrect');
+        }
+
+        const findDevice = await this.prisma.device.findUnique({
+            where: { deviceId: deviceId },
+            select: {
+                deviceId: true,
+                userId: true,
+            },
+        });
+
+        if(!findDevice?.userId) {
+            await this.prisma.device.update({
+                where: {deviceId: deviceId},
+                data: {
+                    userId: checkPhone.id
+                }
+            })
+        } else if( findDevice.userId !== checkPhone.id ) {
+            throw new BadRequestException('This device account is being used by another user!!!')
         }
 
         const token = await this.getToken(checkPhone.id, checkPhone.role);
@@ -135,15 +164,10 @@ export class AuthService {
     async getUserInfo(userId: string) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                phone: true,
-                role: true,
-                createdAt: true,
-                updatedAt: true,
-            },
+            include: {
+                devices: true,
+                promoCodes: true,
+            }
         });
 
         if (!user) {

@@ -42,8 +42,8 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'User login' })
     @ApiBody({ type: LoginAuthDto })
-    login(@Body() loginAuthDto: LoginAuthDto) {
-        return this.authService.login(loginAuthDto);
+    login(@Body() loginAuthDto: LoginAuthDto, @DeviceId() deviceId: string) {
+        return this.authService.login(loginAuthDto, deviceId);
     }
 
     @Post('change-password')

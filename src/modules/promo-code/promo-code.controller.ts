@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiCreatedResponse, ApiBearerAuth } from '@nestj
 import { PromoService } from './promo-code.service';
 import { CreatePromoDto } from './dto/create-promo-code.dto';
 import { UpdatePromoDto } from './dto/update-promo-code.dto';
+import { Roles, User } from '../auth/guards';
 
 @ApiTags('Promo Code')
 @ApiBearerAuth()
@@ -13,30 +14,35 @@ export class PromoController {
     @Post()
     @ApiOperation({ summary: 'Create new promo code' })
     @ApiCreatedResponse({ description: 'Promo code created' })
+    @Roles('SUPER_ADMIN', 'ADMIN')
     create(@Body() dto: CreatePromoDto) {
         return this.promoService.create(dto);
     }
 
-    @Get()
+    @Get('get-all-promo-codes')
     @ApiOperation({ summary: 'Get all promo codes' })
+    @Roles('SUPER_ADMIN', 'ADMIN')
     findAll() {
         return this.promoService.findAll();
     }
 
-    @Get(':id')
+    @Get('get-promo-code')
     @ApiOperation({ summary: 'Get promo code by ID' })
-    findOne(@Param('id') id: string) {
-        return this.promoService.findOne(id);
+    @Roles('SUPER_ADMIN', 'ADMIN', 'USER')
+    findOne(@User('sub') userId: string) {
+        return this.promoService.findOne(userId);
     }
 
     @Put(':id')
     @ApiOperation({ summary: 'Update promo code by ID' })
+    @Roles('SUPER_ADMIN', 'ADMIN')
     update(@Param('id') id: string, @Body() dto: UpdatePromoDto) {
         return this.promoService.update(id, dto);
     }
 
     @Delete(':id')
     @ApiOperation({ summary: 'Delete promo code by ID' })
+    @Roles('SUPER_ADMIN', 'ADMIN')
     remove(@Param('id') id: string) {
         return this.promoService.remove(id);
     }
