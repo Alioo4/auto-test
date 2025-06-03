@@ -25,11 +25,7 @@ export class BannerController {
     @ApiOperation({ summary: 'Create a banner' })
     @ApiResponse({ status: 201, type: BannerResponseDto })
     async create(@Body() dto: CreateBannerDto) {
-        try {
-            return await this.bannerService.create(dto);
-        } catch (err) {
-            throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
-        }
+        return await this.bannerService.create(dto);
     }
 
     @Public()

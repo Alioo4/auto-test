@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
@@ -33,10 +33,16 @@ export class AuthService {
 
         if (existingUser) {
             if (existingUser.phone === phone) {
-                throw new BadRequestException('Phone number already exists');
+                throw new BadRequestException({
+                    message: 'Phone number already exists',
+                    code: 1,
+                });
             }
             if (existingUser.email === email) {
-                throw new BadRequestException('Email already exists');
+                throw new BadRequestException({
+                    message: 'Email already exists',
+                    code: 2,
+                });
             }
         }
 
@@ -79,7 +85,10 @@ export class AuthService {
                 data: { user, token },
             };
         } else {
-            throw new BadRequestException('Device already registered to another user');
+            throw new BadRequestException({
+                message: 'This device account is already registered!!!',
+                code: 3,
+            });
         }
     }
 
@@ -105,7 +114,10 @@ export class AuthService {
         const checkPass = await this.comparePass(loginAuthDto.password, checkPhone.password);
 
         if (!checkPass) {
-            throw new BadRequestException('Phone number or password is incorrect');
+            throw new BadRequestException({
+                message: 'Phone number or password is incorrect',
+                code: 4,
+            });
         }
 
         const findDevice = await this.prisma.device.findUnique({
@@ -124,7 +136,10 @@ export class AuthService {
                 }
             })
         } else if( findDevice.userId !== checkPhone.id ) {
-            throw new BadRequestException('This device account is being used by another user!!!')
+            throw new BadRequestException({
+                message: 'This device is already registered with another account',
+                code: 5,
+            })
         }
 
         const token = await this.getToken(checkPhone.id, checkPhone.role);
@@ -145,11 +160,17 @@ export class AuthService {
         });
 
         if (!findUser) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException({
+                message: 'User not found',
+                code: 6,
+            });
         }
         const checkPass = await this.comparePass(changePasswordDto.oldPassword, findUser.password);
         if (!checkPass) {
-            throw new BadRequestException('Old password is incorrect');
+            throw new BadRequestException({
+                message: 'Old password is incorrect',
+                code: 7,
+            });
         }
         const hashedPass = await this.hashPass(changePasswordDto.newPassword);
         await this.prisma.user.update({
@@ -169,7 +190,10 @@ export class AuthService {
         });
 
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException({
+                message: 'User not found',
+                code: 6,
+            });
         }
 
         return { message: 'User info retrieved successfully', data: user };
@@ -184,7 +208,10 @@ export class AuthService {
         });
 
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException({
+                message: 'User not found',
+                code: 6,
+            });
         }
 
         const updatedUser = await this.prisma.user.update({
@@ -248,7 +275,10 @@ export class AuthService {
         });
 
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new NotFoundException({
+                message: 'User not found',
+                code: 6,
+            });
         }
 
         const device = await this.prisma.device.findUnique({
@@ -256,7 +286,10 @@ export class AuthService {
         });
 
         if (!device) {
-            throw new NotFoundException('Device not found');
+            throw new NotFoundException({
+                message: 'Device not found',
+                code: 8,
+            });
         }
 
         await this.prisma.device.update({
@@ -280,7 +313,10 @@ export class AuthService {
 
             return decoded;
         } catch (error) {
-            throw new BadRequestException('Invalid token');
+            throw new UnauthorizedException({
+                message: 'Invalid token',
+                code: 9,
+            });
         }
     }
 

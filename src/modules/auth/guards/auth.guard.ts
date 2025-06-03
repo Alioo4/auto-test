@@ -26,7 +26,10 @@ export class AuthGuard implements CanActivate {
       const authHeader = request.headers.authorization;
 
       if (!authHeader?.startsWith('Bearer ')) {
-        throw new UnauthorizedException('Missing or invalid token');
+        throw new UnauthorizedException({
+          message: 'Missing or invalid token',
+          code: 10,
+        });
       }
 
       const token = authHeader.split(' ')[1];
@@ -40,7 +43,10 @@ export class AuthGuard implements CanActivate {
       );
 
       if (requiredRoles?.length && !requiredRoles.includes(role)) {
-        throw new ForbiddenException('You do not have the required role');
+        throw new ForbiddenException({
+          message: 'You do not have the required role',
+          code: 11,
+        });
       }
       return true;
     } catch (error) {
