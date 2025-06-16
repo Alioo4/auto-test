@@ -7,23 +7,23 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TariffService {
     constructor(private prisma: PrismaService) {}
 
-    create(dto: CreateTariffDto) {
-        return this.prisma.tariff.create({ data: dto });
+    async create(dto: CreateTariffDto) {
+        return await this.prisma.tariff.create({ data: dto });
     }
 
-    findAll() {
-        return this.prisma.tariff.findMany({ orderBy: { createdAt: 'desc' } });
+    async findAll() {
+        return await this.prisma.tariff.findMany({ orderBy: { createdAt: 'desc' } });
     }
 
-    findOne(id: string) {
-        return this.prisma.tariff.findUnique({ where: { id } });
+    async findOne(id: string) {
+        return await this.prisma.tariff.findUnique({ where: { id } });
     }
 
-    update(id: string, dto: UpdateTariffDto) {
-        return this.prisma.tariff.update({ where: { id }, data: dto });
+    async update(id: string, dto: UpdateTariffDto) {
+        return await this.prisma.tariff.update({ where: { id }, data: dto });
     }
 
-    remove(id: string) {
-        return this.prisma.tariff.delete({ where: { id } });
+    async remove(id: string) {
+        return await this.prisma.tariff.delete({ where: { id } });
     }
 }
