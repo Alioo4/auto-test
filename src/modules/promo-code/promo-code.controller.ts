@@ -46,4 +46,11 @@ export class PromoController {
     remove(@Param('id') id: string) {
         return this.promoService.remove(id);
     }
+
+    @Post('apply-promo-code')
+    @ApiOperation({ summary: 'Apply promo code' })
+    @Roles('SUPER_ADMIN', 'ADMIN', 'USER')
+    applyPromoCode(@Body('promoCode') promoCode: string, @User('sub') userId: string) {
+        return this.promoService.applyPromoCode(promoCode, userId);
+    }
 }

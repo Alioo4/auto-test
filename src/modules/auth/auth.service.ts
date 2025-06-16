@@ -144,7 +144,7 @@ export class AuthService {
 
         const token = await this.getToken(checkPhone.id, checkPhone.role);
 
-        return { message: 'User logged in successfully', data: { token } };
+        return { message: 'User logged in successfully', data: { token, user: checkPhone } };
     }
 
     async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {

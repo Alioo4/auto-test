@@ -21,6 +21,7 @@ model User {
 
   devices   Device[]
   promoCodes promoCode[]
+  promoUserCodes promoUserCode[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -138,6 +139,7 @@ model banner {
 model tariff {
   id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title        String @db.VarChar(255)
+  price        String @db.VarChar(32)
   day          Int   
 
   createdAt    DateTime @default(now()) @map("created_at")
@@ -157,11 +159,28 @@ model promoCode {
   userId     String?  @db.Uuid @map("user_id")
   user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade) 
 
+  promoUserCodes promoUserCode[]
+
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt      @map("updated_at")
 
   @@id([id])
   @@map("promo_code")
+}
+
+model promoUserCode {
+  id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String?  @db.Uuid @map("user_id")
+  promoCodeId  String? @db.Uuid @map("promo_code_id")
+
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promoCode    promoCode? @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt      @map("updated_at")
+
+  @@id([id])
+  @@map("promo_user_code")
 }
 
 enum Os {

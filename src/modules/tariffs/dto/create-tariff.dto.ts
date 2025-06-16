@@ -10,4 +10,9 @@ export class CreateTariffDto {
   @ApiProperty()
   @IsInt()
   day: number;
+
+  @ApiProperty()
+  @IsString()
+  @MaxLength(32)
+  price: string;
 }
