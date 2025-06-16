@@ -13,5 +13,5 @@ export class CreateTariffDto {
 
   @ApiProperty()
   @IsInt()
-  price: string;
+  price: number;
 }
