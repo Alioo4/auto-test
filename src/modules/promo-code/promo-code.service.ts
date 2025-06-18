@@ -40,6 +40,8 @@ export class PromoService {
             select: {
                 id: true,
                 bonusDays: true,
+                disCount: true,
+                agentBonus: true,
                 userId: true,
             },
         });
@@ -51,7 +53,7 @@ export class PromoService {
             });
         };
 
-        if (promo.userId !== userId) {
+        if (promo.userId === userId) {
             throw new BadRequestException({
                 message: 'This promo code is not for you',
                 code: 13,
@@ -65,7 +67,7 @@ export class PromoService {
             },
         });
 
-        if (!isUsed) {
+        if (isUsed) {
             throw new BadRequestException({
                 message: 'Promo code has already been used',
                 code: 14,
