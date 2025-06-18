@@ -4,6 +4,7 @@ import { PromoService } from './promo-code.service';
 import { CreatePromoDto } from './dto/create-promo-code.dto';
 import { UpdatePromoDto } from './dto/update-promo-code.dto';
 import { Roles, User } from '../auth/guards';
+import { ApplyPromoDto } from './dto/apply-promo.dto';
 
 @ApiTags('Promo Code')
 @ApiBearerAuth()
@@ -50,7 +51,7 @@ export class PromoController {
     @Post('apply-promo-code')
     @ApiOperation({ summary: 'Apply promo code' })
     @Roles('SUPER_ADMIN', 'ADMIN', 'USER')
-    applyPromoCode(@Body('promoCode') promoCode: string, @User('sub') userId: string) {
-        return this.promoService.applyPromoCode(promoCode, userId);
+    applyPromoCode(@Body() promoCodeDto: ApplyPromoDto, @User('sub') userId: string) {
+        return this.promoService.applyPromoCode(promoCodeDto.promoCode, userId);
     }
 }

@@ -80,6 +80,8 @@ export class AuthService {
                 data: { userId: user.id },
             });
 
+            await this.promoCode.create({userId: user.id});
+
             return {
                 message: 'User registered successfully',
                 data: { user, token },

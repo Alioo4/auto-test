@@ -35,28 +35,27 @@ export class PromoService {
     }
 
     async applyPromoCode(promoCode: string, userId: string) {
-        const promo = await this.prisma.promoCode.findUnique({
-            where: { id: promoCode },
+        const promo = await this.prisma.promoCode.findFirst({
+            where: { secretKey: promoCode },
             select: {
                 id: true,
                 bonusDays: true,
+                userId: true,
             },
         });
-
-        const findUser = await this.prisma.user.findUnique({
-            where: {
-                id: userId,
-            },
-            select: {
-                countTrariff: true,
-            },
-        });
-
-        const userDays = findUser?.countTrariff ? findUser.countTrariff : 0;
-        const promoDays = promo?.bonusDays ? promo.bonusDays : 0;
 
         if (!promo) {
-            throw new Error('Invalid or expired promo code');
+            throw new BadRequestException({
+                message: 'Invalid promo code',
+                code: 12,
+            });
+        };
+
+        if (promo.userId !== userId) {
+            throw new BadRequestException({
+                message: 'This promo code is not for you',
+                code: 13,
+            });
         }
 
         const isUsed = await this.prisma.promoUserCode.findFirst({
@@ -67,18 +66,11 @@ export class PromoService {
         });
 
         if (!isUsed) {
-            throw new BadRequestException('This promoCode already used!!!');
+            throw new BadRequestException({
+                message: 'Promo code has already been used',
+                code: 14,
+            });
         }
-
-        await this.prisma.user.update({
-            where: {
-                id: userId,
-            },
-            data: {
-                countTrariff: userDays + promoDays,
-                startinglDateLimit: new Date(),
-            },
-        });
 
         return { message: 'Promo code applied successfully', promo };
     }
