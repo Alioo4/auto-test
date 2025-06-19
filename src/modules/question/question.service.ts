@@ -137,11 +137,11 @@ export class QuestionService {
         }
 
         if (query.testNumber) {
-            where.testNumber = query.testNumber;
+            where.testNumber = +query.testNumber;
         }
 
         if (query.questionSetNumber) {
-            where.questionSetNumber = query.questionSetNumber;
+            where.questionSetNumber = +query.questionSetNumber;
         }
 
         const [questions, totalCount] = await Promise.all([
