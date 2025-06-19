@@ -124,7 +124,7 @@ export class QuestionService {
     async findAllForAdmin(query: GetQuestionsQueryDto) {
         const MAX_LIMIT = 100;
         const safeLimit = Math.min(query.limit ?? 10, MAX_LIMIT);
-        const skip = (query.page ?? 1 - 1) * safeLimit;
+        const skip = ((query.page ?? 1) - 1) * safeLimit;
 
         const where: any = {};
 
