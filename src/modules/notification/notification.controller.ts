@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { NotificationDto } from './dto/create-notification.dto';
+import { Roles } from '../auth/guards';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -11,6 +12,7 @@ export class NotificationController {
     @Post()
     @ApiOperation({ summary: 'Yangi notification yaratish' })
     @ApiResponse({ status: 201, description: 'Notification yaratildi', type: NotificationDto })
+    @Roles('ADMIN', 'SUPER_ADMIN')
     create(@Body() createNotificationDto: NotificationDto) {
         return this.notificationService.create(createNotificationDto);
     }
@@ -18,6 +20,7 @@ export class NotificationController {
     @Get()
     @ApiOperation({ summary: 'Barcha notificationlarni olish' })
     @ApiResponse({ status: 200, description: 'Notificationlar ro‘yxati', type: [NotificationDto] })
+    @Roles('ADMIN', 'SUPER_ADMIN', 'USER')
     findAll() {
         return this.notificationService.findAll();
     }
@@ -27,6 +30,7 @@ export class NotificationController {
     @ApiParam({ name: 'id', type: 'string', description: 'Notification UUID' })
     @ApiResponse({ status: 200, description: 'Notification topildi', type: NotificationDto })
     @ApiResponse({ status: 404, description: 'Notification topilmadi' })
+    @Roles('ADMIN', 'SUPER_ADMIN', 'USER')
     findOne(@Param('id') id: string) {
         return this.notificationService.findOne(id);
     }
@@ -36,6 +40,7 @@ export class NotificationController {
     @ApiParam({ name: 'id', type: 'string', description: 'Notification UUID' })
     @ApiResponse({ status: 200, description: 'Notification o‘chirildi' })
     @ApiResponse({ status: 404, description: 'Notification topilmadi' })
+    @Roles('ADMIN', 'SUPER_ADMIN')
     remove(@Param('id') id: string) {
         return this.notificationService.remove(id);
     }
