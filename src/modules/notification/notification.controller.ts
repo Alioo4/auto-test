@@ -1,9 +1,10 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { NotificationService } from './notification.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { NotificationDto } from './dto/create-notification.dto';
 import { Roles } from '../auth/guards';
 
+@ApiBearerAuth()
 @ApiTags('Notifications')
 @Controller('notifications')
 export class NotificationController {
