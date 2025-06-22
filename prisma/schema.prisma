@@ -185,6 +185,23 @@ model promoUserCode {
   @@map("promo_user_code")
 }
 
+model Notification {
+  id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title        String @db.VarChar(255)
+  body         String @db.VarChar(512)
+  titleRu      String? @db.VarChar(255) @map("title_ru")
+  bodyRu       String? @db.VarChar(512) @map("body_ru")
+  imageUrl     String? @db.VarChar(128) @map("image_url")
+  link         String? @db.VarChar(128)
+  isActive     Boolean @default(true) @map("is_active")
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt      @map("updated_at")
+
+  @@id([id])
+  @@map("notifications")
+}
+
 enum Os {
   ANDROID
   IOS

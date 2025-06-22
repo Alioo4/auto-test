@@ -10,6 +10,7 @@ import { OptionsModule } from './modules/options/options.module';
 import { BannersModule } from './modules/banners/banners.module';
 import { TariffsModule } from './modules/tariffs/tariffs.module';
 import { PromoCodeModule } from './modules/promo-code/promo-code.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { PromoCodeModule } from './modules/promo-code/promo-code.module';
         BannersModule,
         TariffsModule,
         PromoCodeModule,
+        NotificationModule,
     ],
     controllers: [],
     providers: [],
