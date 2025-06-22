@@ -42,6 +42,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'User login' })
     @ApiBody({ type: LoginAuthDto })
+    @UseGuards(DeviceHeadersGuard)
     login(@Body() loginAuthDto: LoginAuthDto, @DeviceId() deviceId: string) {
         return this.authService.login(loginAuthDto, deviceId);
     }

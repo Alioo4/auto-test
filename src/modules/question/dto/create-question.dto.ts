@@ -33,6 +33,26 @@ export class CreateQuestionDto {
     @IsInt()
     testNumber: number;
 
+    @ApiProperty({ description: 'Comment in question' })
+    @IsString()
+    @IsOptional()
+    comment?: string;
+
+    @ApiProperty({ description: 'Expert comment in question' })
+    @IsString()
+    @IsOptional()
+    expertComment?: string;
+
+    @ApiProperty({ description: 'Comment in question (RU)', required: false })
+    @IsString()
+    @IsOptional()
+    commentRu?: string;
+
+    @ApiProperty({ description: 'Expert comment in question (RU)', required: false })
+    @IsString()
+    @IsOptional()
+    expertCommentRu?: string;
+
     @ApiProperty({ example: 'capital.jpg', required: false, description: 'Rasm URL (ixtiyoriy)' })
     @IsOptional()
     @IsString()

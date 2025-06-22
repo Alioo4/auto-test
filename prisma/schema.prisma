@@ -36,7 +36,7 @@ model Device {
   osVersion  String?             @map("os_version")
   deviceId   String    @unique   @map("device_id")
   deviceName String?             @map("device_name")
-  deviceToken String?  @unique   @map("device_token")
+  deviceToken String?  @map("device_token")
   isActive   Boolean   @default(true)  @map("is_active")
   isBlocked  Boolean   @default(false) @map("is_blocked")
   isRegistered Boolean @default(false) @map("is_registered") 
@@ -69,6 +69,8 @@ model Question {
   imgUrl            String?          @db.VarChar(512)
   comment           String?          @db.VarChar(512)
   expertComment     String?          @db.VarChar(512) @map("expert_commit")
+  commentRu        String?          @db.VarChar(512) @map("comment_ru")
+  expertCommentRu  String?          @db.VarChar(512) @map("expert_commit_ru")
 
   optionsUz        optionsUz[]
   optionsRu        optionsRu[]
