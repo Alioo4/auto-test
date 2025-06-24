@@ -130,6 +130,20 @@ export class AuthService {
             },
         });
 
+        const checkAcc = await this.prisma.device.findFirst({
+            where: {
+                NOT: { deviceId: findDevice?.deviceId },
+                userId: checkPhone.id
+            }
+        })
+
+        if(checkAcc) {
+            throw new BadRequestException({
+                message: 'This account using another device',
+                code: 15,
+            })
+        }
+
         if(!findDevice?.userId) {
             await this.prisma.device.update({
                 where: {deviceId: deviceId},
@@ -142,7 +156,7 @@ export class AuthService {
                 message: 'This device is already registered with another account',
                 code: 5,
             })
-        }
+        } 
 
         const token = await this.getToken(checkPhone.id, checkPhone.role);
 
