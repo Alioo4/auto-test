@@ -61,9 +61,8 @@ export class NotificationService {
             throw new NotFoundException(`Notification with id ${id} not found`);
         }
 
-        const data = this.prisma.notification.update({
-            where: { id },
-            data: { isActive: false },
+        const data = this.prisma.notification.delete({
+            where: { id }
         });
 
         return { data: { id, message: 'Notification successfully deleted' } };
