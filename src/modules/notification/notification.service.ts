@@ -6,9 +6,16 @@ import { NotificationDto } from './dto/create-notification.dto';
 export class NotificationService {
     constructor(private readonly prisma: PrismaService) {}
 
-    async create(createNotificationDto: NotificationDto) {
+    async create(dto: NotificationDto) {
         const notification = await this.prisma.notification.create({
-            data: createNotificationDto,
+            data: {
+                title: dto.title,
+                body: dto.body,
+                titleRu: dto.titleRu,
+                bodyRu: dto.titleRu,
+                imageUrl: dto.imageUrl,
+                link: dto.link,
+            },
         });
 
         return { data: notification };
