@@ -60,7 +60,7 @@ export class NotificationService {
             throw new NotFoundException(`Notification with id ${id} not found`);
         }
 
-        const data = this.prisma.notification.delete({
+        const data = await this.prisma.notification.delete({
             where: { id }
         });
 
