@@ -23,7 +23,6 @@ export class NotificationService {
 
     async findAll() {
         const data = await this.prisma.notification.findMany({
-            where: { isActive: true },
             select: {
                 id: true,
                 title: true,
