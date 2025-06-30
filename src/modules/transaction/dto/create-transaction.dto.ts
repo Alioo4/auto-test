@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateTransactionDto {
     @ApiProperty({ example: 'uuid', description: 'This is tariff Id!!!' })
@@ -9,6 +9,6 @@ export class CreateTransactionDto {
 
     @ApiProperty({ example: 'uuid', description: 'This is promocode Id!!!' })
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     promocodeId: string;
 }

@@ -219,11 +219,11 @@ model Transaction {
   userId        String @db.Uuid @map("user_id")
   status        TransactionStatus?
   tariffId      String @db.Uuid @map("tariff_id")
-  promocodeId   String @db.Uuid @map("promocode_id")
+  promocodeId   String? @db.Uuid @map("promocode_id")
 
   user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade) 
   tariff     Tariff  @relation(fields: [tariffId], references: [id], onDelete: Cascade) 
-  promoCode  PromoCode @relation(fields: [promocodeId], references: [id], onDelete: Cascade)
+  promoCode  PromoCode? @relation(fields: [promocodeId], references: [id], onDelete: Cascade)
 
   cancelTime   DateTime? @map("cancel_time")
   createdAt    DateTime @default(now()) @map("created_at")
