@@ -9,6 +9,8 @@ import { PaymentType, TransactionStatus } from '@prisma/client';
 export class ClickPayService {
     constructor(private readonly prisma: PrismaService) {}
     async prepare(dto: PrepareClickPayDto) {
+        console.log(dto);
+        
         const transaction = await this.prisma.transaction.findUnique({
             where: { id: dto.merchant_trans_id },
             select: {
@@ -20,8 +22,9 @@ export class ClickPayService {
         });
 
         if (!transaction) {
+            console.log(transaction);
             return { error: ClickError.TransactionNotFound, error_note: 'Transaction not found' };
-        }
+        }   
 
         const findTarif = await this.prisma.tariff.findUnique({
             where: { id: transaction.tariffId },
@@ -29,6 +32,9 @@ export class ClickPayService {
                 price: true,
             },
         });
+
+        console.log(findTarif);
+        
 
         const checkData = {
             click_trans_id: dto.click_trans_id,
@@ -40,6 +46,9 @@ export class ClickPayService {
             sign_time: dto.sign_time,
             sign_string: dto.sign_string,
         };
+
+        console.log(checkData);
+        
 
         const check = await this.checkClickSignature(checkData);
 
@@ -215,6 +224,8 @@ export class ClickPayService {
         const prepareId = merchant_prepare_id || '';
         const signature = `${click_trans_id}${service_id}${clickSercretKey}${merchant_trans_id}${prepareId}${amount}${action}${sign_time}`;
         const signatureHash = crypto.createHash('md5').update(signature).digest('hex');
+
+        console.log(signatureHash === sign_string);
 
         return signatureHash === sign_string;
     }
