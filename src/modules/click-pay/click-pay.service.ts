@@ -8,11 +8,11 @@ import { PaymentType, TransactionStatus } from '@prisma/client';
 @Injectable()
 export class ClickPayService {
     constructor(private readonly prisma: PrismaService) {}
-    async prepare(dto: PrepareClickPayDto) {
-        console.log(dto);
+    async prepare(body: any) {
+        console.log(body);
         
         const transaction = await this.prisma.transaction.findUnique({
-            where: { id: dto.merchant_trans_id },
+            where: { id: body.merchant_trans_id },
             select: {
                 id: true,
                 userId: true,
@@ -37,14 +37,14 @@ export class ClickPayService {
         
 
         const checkData = {
-            click_trans_id: dto.click_trans_id,
-            service_id: dto.service_id,
-            merchant_trans_id: dto.merchant_trans_id,
-            amount: dto.amount,
-            action: dto.action,
+            click_trans_id: body.click_trans_id,
+            service_id: body.service_id,
+            merchant_trans_id: body.merchant_trans_id,
+            amount: body.amount,
+            action: body.action,
             merchant_prepare_id: transaction.prepareID ?? undefined,
-            sign_time: dto.sign_time,
-            sign_string: dto.sign_string,
+            sign_time: body.sign_time,
+            sign_string: body.sign_string,
         };
 
         console.log(checkData);
@@ -56,13 +56,13 @@ export class ClickPayService {
             return { error: ClickError.SignFailed, error_note: 'Invalid sign' };
         }
 
-        if (dto.action !== ClickAction.Prepare) {
+        if (body.action !== ClickAction.Prepare) {
             return { error: ClickError.ActionNotFound, error_note: 'Action not found' };
         }
 
         const isAlreadyPaid = await this.prisma.transaction.count({
             where: {
-                id: dto.merchant_trans_id,
+                id: body.merchant_trans_id,
                 userId: transaction.userId,
                 status: TransactionStatus.Paid,
                 paymentType: PaymentType.CLICK,
@@ -79,7 +79,7 @@ export class ClickPayService {
             return { error: ClickError.UserNotFound, error_note: 'User not found' };
         }
 
-        if (dto.amount !== findTarif?.price) {
+        if (body.amount !== findTarif?.price) {
             return { error: ClickError.InvalidAmount, error_note: 'Incorrect parameter amount' };
         }
 
@@ -88,17 +88,17 @@ export class ClickPayService {
         await this.prisma.transaction.update({
             where: { id: transaction.id },
             data: {
-                clickTransId: dto.click_trans_id,
+                clickTransId: body.click_trans_id,
                 status: TransactionStatus.Pending,
                 prepareID: time,
                 paymentType: PaymentType.CLICK,
-                amount: dto.amount,
+                amount: body.amount,
             },
         });
 
         return {
-            click_trans_id: dto.click_trans_id,
-            merchant_trans_id: dto.merchant_trans_id,
+            click_trans_id: body.click_trans_id,
+            merchant_trans_id: body.merchant_trans_id,
             merchant_prepare_id: time,
             error: ClickError.Success,
             error_note: 'Success',
