@@ -21,8 +21,9 @@ export class NotificationService {
         return { data: notification };
     }
 
-    async findAll() {
+    async findAll(userId: string) {
         const data = await this.prisma.notification.findMany({
+            where: { OR: [{ userId: userId }, { userId: null }] },
             select: {
                 id: true,
                 title: true,
@@ -61,7 +62,7 @@ export class NotificationService {
         }
 
         const data = await this.prisma.notification.delete({
-            where: { id }
+            where: { id },
         });
 
         return { data: { id, message: 'Notification successfully deleted' } };

@@ -11,6 +11,9 @@ import { BannersModule } from './modules/banners/banners.module';
 import { TariffsModule } from './modules/tariffs/tariffs.module';
 import { PromoCodeModule } from './modules/promo-code/promo-code.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { ClickPayModule } from './modules/click-pay/click-pay.module';
+import { TransactionModule } from './modules/transaction/transaction.module';
+import { PaymePayModule } from './modules/payme-pay/payme-pay.module';
 
 @Module({
     imports: [
@@ -28,6 +31,9 @@ import { NotificationModule } from './modules/notification/notification.module';
         TariffsModule,
         PromoCodeModule,
         NotificationModule,
+        ClickPayModule,
+        TransactionModule,
+        PaymePayModule,
     ],
     controllers: [],
     providers: [],

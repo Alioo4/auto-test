@@ -8,20 +8,22 @@ datasource db {
 }
 
 model User {
-  id         String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name       String?
-  phone      String   @unique
-  email      String?  @unique
-  password   String 
-  countTrariff Int? @default(0) @map("count_trariff")
-  role       Role     @default(USER) 
-  accessDevice String? @map("access_device")
-  lastAccountTranferDate DateTime? @map("last_account_tranfer_date")
-  startinglDateLimit     DateTime? @map("startingl_date_limit")
+  id                 String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String?
+  phone              String   @unique
+  email              String?  @unique
+  password           String 
+  countTrariff       Int? @default(0) @map("count_trariff")
+  isPaid             Boolean @default(false)
+  role               Role     @default(USER) 
+  accessDevice       String? @map("access_device")
+  startinglDateLimit DateTime? @map("startingl_date_limit")
 
-  devices   Device[]
-  promoCodes promoCode[]
-  promoUserCodes promoUserCode[]
+  devices        Device[]
+  promoCodes     PromoCode[]
+  promoUserCodes PromoUserCode[]
+  transactions   Transaction[]
+  notifications  Notification[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -31,22 +33,22 @@ model User {
 }
 
 model Device {
-  id         String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  os         Os
-  osVersion  String?             @map("os_version")
-  deviceId   String    @unique   @map("device_id")
-  deviceName String?             @map("device_name")
-  deviceToken String?  @map("device_token")
-  isActive   Boolean   @default(true)  @map("is_active")
-  isBlocked  Boolean   @default(false) @map("is_blocked")
-  isRegistered Boolean @default(false) @map("is_registered") 
-  manufacturer String?  
-  model      String?
-  appVersion String?  @map("app_version")
-  appBuild   String?  @map("app_build")
-  appName    String?  @map("app_name")
-  appVersionCode String? @map("app_version_code")
-  appVersionName String? @map("app_version_name")
+  id             String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  os             Os
+  osVersion      String?  @map("os_version")
+  deviceId       String   @map("device_id")  @unique
+  deviceName     String?  @map("device_name")
+  deviceToken    String?  @map("device_token")
+  isActive       Boolean  @default(true)  @map("is_active")
+  isBlocked      Boolean  @default(false) @map("is_blocked")
+  isRegistered   Boolean  @default(false) @map("is_registered") 
+  manufacturer   String?  
+  model          String?
+  appVersion     String?  @map("app_version")
+  appBuild       String?  @map("app_build")
+  appName        String?  @map("app_name")
+  appVersionCode String?  @map("app_version_code")
+  appVersionName String?  @map("app_version_name")
 
   userId     String?  @db.Uuid @map("user_id")
   user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -122,7 +124,7 @@ model optionsEn {
   @@map("options_en")
 }
 
-model banner {
+model Banner {
   id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title        String @db.VarChar(255)
   description  String? @db.VarChar(512)
@@ -138,11 +140,13 @@ model banner {
   @@map("banners")
 }
 
-model tariff {
+model Tariff {
   id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title        String @db.VarChar(255)
   price        Int @default(0)
   day          Int   
+
+  transaction Transaction[]
 
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt      @map("updated_at")
@@ -151,7 +155,7 @@ model tariff {
   @@map("tariffs")
 }
 
-model promoCode {
+model PromoCode {
   id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   secretKey    String @db.VarChar(16) @map("secret_key")
   disCount     Int? @map("dis_count")
@@ -161,7 +165,8 @@ model promoCode {
   userId     String?  @db.Uuid @map("user_id")
   user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade) 
 
-  promoUserCodes promoUserCode[]
+  promoUserCodes PromoUserCode[]
+  transaction Transaction[]
 
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt      @map("updated_at")
@@ -170,13 +175,13 @@ model promoCode {
   @@map("promo_code")
 }
 
-model promoUserCode {
+model PromoUserCode {
   id           String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId       String?  @db.Uuid @map("user_id")
   promoCodeId  String? @db.Uuid @map("promo_code_id")
 
   user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  promoCode    promoCode? @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
+  promoCode    PromoCode? @relation(fields: [promoCodeId], references: [id], onDelete: Cascade)
 
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt      @map("updated_at")
@@ -195,11 +200,37 @@ model Notification {
   link         String? @db.VarChar(128)
   isActive     Boolean @default(true) @map("is_active")
 
+  userId       String?  @db.Uuid @map("user_id")
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt      @map("updated_at")
 
   @@id([id])
   @@map("notifications")
+}
+
+model Transaction {
+  id            String   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clickTransId  BigInt?  @map("click_trans_id")
+  amount        Float?
+  prepareID     Int?      @map("prepare_id")
+  paymentType   PaymentType? @map("payment_type")
+  userId        String @db.Uuid @map("user_id")
+  status        TransactionStatus?
+  tariffId      String @db.Uuid @map("tariff_id")
+  promocodeId   String @db.Uuid @map("promocode_id")
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  tariff     Tariff  @relation(fields: [tariffId], references: [id], onDelete: Cascade) 
+  promoCode  PromoCode @relation(fields: [promocodeId], references: [id], onDelete: Cascade)
+
+  cancelTime   DateTime? @map("cancel_time")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt      @map("updated_at")
+  
+  @@id([id])
+  @@map("transactions")
 }
 
 enum Os {
@@ -211,4 +242,16 @@ enum Role {
   USER
   ADMIN
   SUPER_ADMIN
+}
+
+enum PaymentType {
+  PAYME
+  CLICK
+}
+
+enum TransactionStatus {
+  Paid
+  Pending
+  PendingCanceled
+  PaidCanceled
 }

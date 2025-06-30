@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { NotificationDto } from './dto/create-notification.dto';
-import { Roles } from '../auth/guards';
+import { Roles, User } from '../auth/guards';
 
 @ApiBearerAuth()
 @ApiTags('Notifications')
@@ -22,8 +22,8 @@ export class NotificationController {
     @ApiOperation({ summary: 'Barcha notificationlarni olish' })
     @ApiResponse({ status: 200, description: 'Notificationlar ro‘yxati', type: [NotificationDto] })
     @Roles('ADMIN', 'SUPER_ADMIN', 'USER')
-    findAll() {
-        return this.notificationService.findAll();
+    findAll(@User('sub') userId: string) {
+        return this.notificationService.findAll(userId);
     }
 
     @Get(':id')
