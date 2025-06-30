@@ -2,11 +2,13 @@ import { Body, Controller, HttpCode, HttpStatus, Post, Res } from '@nestjs/commo
 import { ClickPayService } from './click-pay.service';
 import { CompleteClickPayDto, PrepareClickPayDto } from './dto';
 import { Response } from 'express';
+import { Public } from '../auth/guards';
 
 @Controller('click-pay')
 export class ClickPayController {
     constructor(private readonly clickPayService: ClickPayService) {}
 
+    @Public()
     @Post('pre-pare')
     @HttpCode(HttpStatus.OK)
     prepare(@Body() prepareData: PrepareClickPayDto, @Res() res: Response) {
@@ -18,6 +20,7 @@ export class ClickPayController {
         return res.send(encoded);
     }
 
+    @Public()
     @Post('complete')
     @HttpCode(HttpStatus.OK)
     async complete(@Body() completeData: CompleteClickPayDto, @Res() res: Response) {
