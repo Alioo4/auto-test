@@ -12,6 +12,9 @@ export class ClickPayController {
     @Post('pre-pare')
     @HttpCode(HttpStatus.OK)
     prepare(@Body() prepareData: PrepareClickPayDto, @Res() res: Response) {
+        console.log(prepareData);
+        
+
         const result = this.clickPayService.prepare(prepareData);
 
         const encoded = new URLSearchParams(result as any).toString();
