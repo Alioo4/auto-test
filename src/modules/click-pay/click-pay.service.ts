@@ -2,15 +2,13 @@ import { Injectable } from '@nestjs/common';
 import * as crypto from 'node:crypto';
 import { CheckClickSignatureDto, CompleteClickPayDto, PrepareClickPayDto } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { ClickAction, ClickError } from '../utils';
+import { ClickAction, ClickError, sendMessage } from '../utils';
 import { PaymentType, TransactionStatus } from '@prisma/client';
 
 @Injectable()
 export class ClickPayService {
     constructor(private readonly prisma: PrismaService) {}
     async prepare(body: any) {
-        console.log(body);
-        
         const transaction = await this.prisma.transaction.findUnique({
             where: { id: body.merchant_trans_id },
             select: {
@@ -24,7 +22,7 @@ export class ClickPayService {
         if (!transaction) {
             console.log(transaction);
             return { error: ClickError.TransactionNotFound, error_note: 'Transaction not found' };
-        }   
+        }
 
         const findTarif = await this.prisma.tariff.findUnique({
             where: { id: transaction.tariffId },
@@ -34,7 +32,6 @@ export class ClickPayService {
         });
 
         console.log(findTarif);
-        
 
         const checkData = {
             click_trans_id: body.click_trans_id,
@@ -48,7 +45,6 @@ export class ClickPayService {
         };
 
         console.log(checkData);
-        
 
         const check = await this.checkClickSignature(checkData);
 
@@ -96,16 +92,19 @@ export class ClickPayService {
             },
         });
 
-        return {
+        const response = {
             click_trans_id: body.click_trans_id,
             merchant_trans_id: body.merchant_trans_id,
             merchant_prepare_id: time,
             error: ClickError.Success,
             error_note: 'Success',
         };
+
+        await sendMessage(response);
+        return response;
     }
 
-    async complete(dto: CompleteClickPayDto) {
+    async complete(dto: any) {
         const transaction = await this.prisma.transaction.findUnique({
             where: { id: dto.merchant_trans_id },
             select: {
@@ -128,7 +127,7 @@ export class ClickPayService {
             where: { id: transaction.tariffId },
             select: {
                 price: true,
-                day: true
+                day: true,
             },
         });
 
@@ -153,7 +152,10 @@ export class ClickPayService {
             return { error: ClickError.ActionNotFound, error_note: 'Action not found' };
         }
 
-        const user = await this.prisma.user.findUnique({ where: { id: transaction.userId }, select: {countTrariff: true} });
+        const user = await this.prisma.user.findUnique({
+            where: { id: transaction.userId },
+            select: { countTrariff: true },
+        });
 
         if (!user) {
             return { error: ClickError.UserNotFound, error_note: 'User not found' };
@@ -197,15 +199,22 @@ export class ClickPayService {
             return { error: ClickError.TransactionNotFound, error_note: 'Transaction not found' };
         }
 
-        await this.prisma.user.update({where: {id: transaction.userId}, data: {countTrariff: user.countTrariff ?? 0 + findTarif.day, isPaid: true }})
+        await this.prisma.user.update({
+            where: { id: transaction.userId },
+            data: { countTrariff: user.countTrariff ?? 0 + (findTarif?.day ?? 0), isPaid: true },
+        });
 
-        return {
+        const response = {
             click_trans_id: dto.click_trans_id,
             merchant_trans_id: dto.merchant_trans_id,
             merchant_confirm_id: time,
             error: ClickError.Success,
             error_note: 'Success',
         };
+
+        await sendMessage(response);
+
+        return response;
     }
 
     async checkClickSignature(data: CheckClickSignatureDto) {

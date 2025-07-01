@@ -11,6 +11,7 @@ import {
   import { ClickPayService } from './click-pay.service';
   import { CompleteClickPayDto, PrepareClickPayDto } from './dto';
   import { Public } from '../auth/guards';
+import { sendMessage } from '../utils';
   
   @Controller('click-pay')
   export class ClickPayController {
@@ -26,10 +27,10 @@ import {
     @Post('prepare') 
     @HttpCode(HttpStatus.OK)
     async prepare(
-      @Body() prepareData: PrepareClickPayDto,
       @Res() res: Response,
       @Req() req: Request,
     ) { 
+      await sendMessage(req.body)
       const result = await this.clickPayService.prepare(req.body);
       return this.sendURLEncoded(res, result);
     }
@@ -38,10 +39,11 @@ import {
     @Post('complete')
     @HttpCode(HttpStatus.OK)
     async complete(
-      @Body() completeData: CompleteClickPayDto,
       @Res() res: Response,
+      @Req() req: Request,
     ) {
-      const result = await this.clickPayService.complete(completeData);
+      await sendMessage(req.body)
+      const result = await this.clickPayService.complete(req.body);
       return this.sendURLEncoded(res, result);
     }
   }
