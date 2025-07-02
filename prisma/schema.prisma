@@ -212,7 +212,7 @@ model Notification {
 
 model Transaction {
   id            String   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  clickTransId  BigInt?  @map("click_trans_id")
+  clickTransId  String?  @map("click_trans_id")
   amount        Float?
   prepareID     Int?      @map("prepare_id")
   paymentType   PaymentType? @map("payment_type")
