@@ -94,7 +94,7 @@ export class ClickPayService {
                 status: TransactionStatus.Pending,
                 prepareID: time,
                 paymentType: PaymentType.CLICK,
-                amount: body.amount,
+                amount: +body.amount,
             },
         });
 
