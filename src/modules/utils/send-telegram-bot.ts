@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const BOT_TOKEN = '7027657121:AAGIwsGvG316xMZ3kmGrLRGmnrfylw8evtM';
-const CHAT_ID = '-1001894592258';
+const BOT_TOKEN = '';
+const CHAT_ID = '';
 
 export const sendMessage = async (payload: unknown, text?: string) => {
     const TEXT = JSON.stringify(payload, null, 2);
