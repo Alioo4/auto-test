@@ -2,26 +2,26 @@ import { IsEnum, IsNumber, IsString } from 'class-validator';
 
 export class CheckClickSignatureDto {
     @IsNumber()
-    click_trans_id?: number;
+    click_trans_id?: any;
 
     @IsNumber()
-    service_id?: number;
+    service_id?: any;
 
     @IsString()
-    merchant_trans_id?: string;
+    merchant_trans_id?: any
 
     @IsNumber()
-    amount?: number;
+    amount?: any;
 
     @IsNumber()
-    merchant_prepare_id?: number;
+    merchant_prepare_id?: any;
 
     @IsNumber()
-    action?: number;
+    action?: any;
 
     @IsString()
-    sign_time?: string;
+    sign_time?: any;
 
     @IsString()
-    sign_string?: string;
+    sign_string?: any;
 }

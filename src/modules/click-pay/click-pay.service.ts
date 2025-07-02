@@ -14,7 +14,7 @@ export class ClickPayService {
             select: {
                 id: true,
                 userId: true,
-                prepareID: true,
+                prepareId: true,
                 tariffId: true,
             },
         });
@@ -39,7 +39,7 @@ export class ClickPayService {
             merchant_trans_id: body.merchant_trans_id,
             amount: body.amount,
             action: body.action,
-            merchant_prepare_id: transaction.prepareID ?? undefined,
+            merchant_prepare_id: transaction.prepareId ?? undefined,
             sign_time: body.sign_time,
             sign_string: body.sign_string,
         };
@@ -92,7 +92,7 @@ export class ClickPayService {
             data: {
                 clickTransId: body.click_trans_id,
                 status: TransactionStatus.Pending,
-                prepareID: time,
+                prepareId: time,
                 paymentType: PaymentType.CLICK,
                 amount: +body.amount,
             },
@@ -116,7 +116,7 @@ export class ClickPayService {
             select: {
                 id: true,
                 userId: true,
-                prepareID: true,
+                prepareId: true,
                 tariffId: true,
             },
         });
@@ -139,7 +139,7 @@ export class ClickPayService {
             merchant_trans_id: dto.merchant_trans_id,
             amount: dto.amount,
             action: dto.action,
-            merchant_prepare_id: transaction.prepareID ?? undefined,
+            merchant_prepare_id: transaction.prepareId ?? undefined,
             sign_time: dto.sign_time,
             sign_string: dto.sign_string,
         };
@@ -167,7 +167,7 @@ export class ClickPayService {
 
         const isPrepared = await this.prisma.transaction.count({
             where: {
-                prepareID: dto.merchant_prepare_id,
+                prepareId: dto.merchant_prepare_id,
                 paymentType: PaymentType.CLICK,
             },
         });
