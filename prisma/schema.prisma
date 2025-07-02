@@ -214,7 +214,7 @@ model Transaction {
   id            String   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   clickTransId  String?  @map("click_trans_id")
   amount        Float?
-  prepareID     Int?      @map("prepare_id")
+  prepareId     BigInt?      @map("prepare_id")
   paymentType   PaymentType? @map("payment_type")
   userId        String @db.Uuid @map("user_id")
   status        TransactionStatus?
