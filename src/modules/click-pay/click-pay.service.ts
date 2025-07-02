@@ -96,12 +96,12 @@ export class ClickPayService {
             },
         });
 
-        const data = new Date()
+        const date = await this.formatDate(new Date())
 
         const response = {
             click_trans_id: body.click_trans_id,
             merchant_trans_id: body.merchant_trans_id,
-            merchant_prepare_id: this.formatDate(data),
+            merchant_prepare_id: date,
             error: ClickError.Success,
             error_note: 'Success',
         };
@@ -195,8 +195,6 @@ export class ClickPayService {
             return { error: ClickError.InvalidAmount, error_note: 'Incorrect parameter amount' };
         }
 
-        const time = new Date().getTime();
-
         if (dto.error < 0) {
             await this.prisma.transaction.update({
                 where: { id: transaction.id },
@@ -210,12 +208,12 @@ export class ClickPayService {
             data: { countTrariff: user.countTrariff ?? 0 + (findTarif?.day ?? 0), isPaid: true },
         });
 
-        const data = new Date()
+        const date = await this.formatDate(new Date())
 
         const response = {
             click_trans_id: dto.click_trans_id,
             merchant_trans_id: dto.merchant_trans_id,
-            merchant_confirm_id: this.formatDate(data),
+            merchant_confirm_id: date,
             error: ClickError.Success,
             error_note: 'Success',
         };
@@ -247,7 +245,7 @@ export class ClickPayService {
         return signatureHash === sign_string;
     }
 
-    async formatDate(date) {
+    async formatDate(date: Date) {
         const yyyy = date.getFullYear();
         const mm = String(date.getMonth() + 1).padStart(2, '0');
         const dd = String(date.getDate()).padStart(2, '0');
