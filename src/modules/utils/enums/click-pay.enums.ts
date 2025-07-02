@@ -11,8 +11,8 @@ export enum ClickError {
 }
 
 export enum ClickAction {
-	Prepare = 0,
-	Complete = 1,
+	Prepare = "0",
+	Complete = "1",
 }
 
 export enum TransactionState {
