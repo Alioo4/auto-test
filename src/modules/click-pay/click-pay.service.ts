@@ -81,7 +81,7 @@ export class ClickPayService {
 
         await sendMessage({amount: body.amount, price: findTarif?.price}, "User Is have");
 
-        if (body.amount !== findTarif?.price) {
+        if (+body.amount !== findTarif?.price) {
             return { error: ClickError.InvalidAmount, error_note: 'Incorrect parameter amount' };
         }
 
@@ -125,10 +125,6 @@ export class ClickPayService {
             return { error: ClickError.TransactionNotFound, error_note: 'Transaction not found' };
         }
 
-        if (!transaction) {
-            return { error: ClickError.TransactionNotFound, error_note: 'Transaction not found' };
-        }
-
         const findTarif = await this.prisma.tariff.findUnique({
             where: { id: transaction.tariffId },
             select: {
@@ -149,6 +145,8 @@ export class ClickPayService {
         };
 
         const check = await this.checkClickSignature(checkData);
+
+        await sendMessage(check, "Checking key c");
 
         if (!check) {
             return { error: ClickError.SignFailed, error_note: 'Invalid sign' };
@@ -187,11 +185,13 @@ export class ClickPayService {
             },
         });
 
+        await sendMessage(isAlreadyPaid, "paying key c");
+
         if (isAlreadyPaid) {
             return { error: ClickError.AlreadyPaid, error_note: 'Already paid for course' };
         }
 
-        if (dto.amount !== findTarif?.price) {
+        if (+dto.amount !== findTarif?.price) {
             return { error: ClickError.InvalidAmount, error_note: 'Incorrect parameter amount' };
         }
 
@@ -218,7 +218,7 @@ export class ClickPayService {
             error_note: 'Success',
         };
 
-        await sendMessage(response);
+        await sendMessage(response, "complete");
 
         return response;
     }
