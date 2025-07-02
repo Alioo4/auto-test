@@ -96,10 +96,12 @@ export class ClickPayService {
             },
         });
 
+        const data = new Date()
+
         const response = {
             click_trans_id: body.click_trans_id,
             merchant_trans_id: body.merchant_trans_id,
-            merchant_prepare_id: this.formatDate(),
+            merchant_prepare_id: this.formatDate(data),
             error: ClickError.Success,
             error_note: 'Success',
         };
@@ -208,10 +210,12 @@ export class ClickPayService {
             data: { countTrariff: user.countTrariff ?? 0 + (findTarif?.day ?? 0), isPaid: true },
         });
 
+        const data = new Date()
+
         const response = {
             click_trans_id: dto.click_trans_id,
             merchant_trans_id: dto.merchant_trans_id,
-            merchant_confirm_id: this.formatDate(),
+            merchant_confirm_id: this.formatDate(data),
             error: ClickError.Success,
             error_note: 'Success',
         };
@@ -243,8 +247,7 @@ export class ClickPayService {
         return signatureHash === sign_string;
     }
 
-    async formatDate() {
-        const date = new Date()
+    async formatDate(date) {
         const yyyy = date.getFullYear();
         const mm = String(date.getMonth() + 1).padStart(2, '0');
         const dd = String(date.getDate()).padStart(2, '0');
