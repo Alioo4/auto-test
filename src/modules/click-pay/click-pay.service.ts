@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'node:crypto';
-import { CheckClickSignatureDto, CompleteClickPayDto, PrepareClickPayDto } from './dto';
+import { CheckClickSignatureDto } from './dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { ClickAction, ClickError, sendMessage } from '../utils';
 import { PaymentType, TransactionStatus } from '@prisma/client';
@@ -31,7 +31,7 @@ export class ClickPayService {
             },
         });
 
-        await sendMessage(findTarif, "Founding tariff");
+        await sendMessage(findTarif, 'Founding tariff');
 
         const checkData = {
             click_trans_id: body.click_trans_id,
@@ -46,7 +46,7 @@ export class ClickPayService {
 
         const check = await this.checkClickSignature(checkData);
 
-        await sendMessage(check, "Checking key");
+        await sendMessage(check, 'Checking key');
 
         if (!check) {
             return { error: ClickError.SignFailed, error_note: 'Invalid sign' };
@@ -65,7 +65,7 @@ export class ClickPayService {
             },
         });
 
-        await sendMessage(isAlreadyPaid, "Check already paying");
+        await sendMessage(isAlreadyPaid, 'Check already paying');
 
         if (isAlreadyPaid) {
             return { error: ClickError.AlreadyPaid, error_note: 'Already paid' };
@@ -73,26 +73,24 @@ export class ClickPayService {
 
         const user = await this.prisma.user.count({ where: { id: transaction.userId } });
 
-        await sendMessage(user, "User Is have");
+        await sendMessage(user, 'User Is have');
 
         if (!user) {
             return { error: ClickError.UserNotFound, error_note: 'User not found' };
         }
 
-        await sendMessage({amount: body.amount, price: findTarif?.price}, "User Is have");
+        await sendMessage({ amount: body.amount, price: findTarif?.price }, 'User Is have');
 
         if (+body.amount !== findTarif?.price) {
             return { error: ClickError.InvalidAmount, error_note: 'Incorrect parameter amount' };
         }
-
-        const time = new Date().getTime();
 
         await this.prisma.transaction.update({
             where: { id: transaction.id },
             data: {
                 clickTransId: body.click_trans_id,
                 status: TransactionStatus.Pending,
-                prepareId: time,
+                prepareId: (new Date()).getTime(),
                 paymentType: PaymentType.CLICK,
                 amount: +body.amount,
             },
@@ -101,12 +99,12 @@ export class ClickPayService {
         const response = {
             click_trans_id: body.click_trans_id,
             merchant_trans_id: body.merchant_trans_id,
-            merchant_prepare_id: time,
+            merchant_prepare_id: this.formatDate(),
             error: ClickError.Success,
             error_note: 'Success',
         };
 
-        await sendMessage(response, "response");
+        await sendMessage(response, 'response');
         return response;
     }
 
@@ -146,7 +144,7 @@ export class ClickPayService {
 
         const check = await this.checkClickSignature(checkData);
 
-        await sendMessage(check, "Checking key c");
+        await sendMessage(check, 'Checking key c');
 
         if (!check) {
             return { error: ClickError.SignFailed, error_note: 'Invalid sign' };
@@ -185,7 +183,7 @@ export class ClickPayService {
             },
         });
 
-        await sendMessage(isAlreadyPaid, "paying key c");
+        await sendMessage(isAlreadyPaid, 'paying key c');
 
         if (isAlreadyPaid) {
             return { error: ClickError.AlreadyPaid, error_note: 'Already paid for course' };
@@ -213,12 +211,12 @@ export class ClickPayService {
         const response = {
             click_trans_id: dto.click_trans_id,
             merchant_trans_id: dto.merchant_trans_id,
-            merchant_confirm_id: time,
+            merchant_confirm_id: this.formatDate(),
             error: ClickError.Success,
             error_note: 'Success',
         };
 
-        await sendMessage(response, "complete");
+        await sendMessage(response, 'complete');
 
         return response;
     }
@@ -243,5 +241,17 @@ export class ClickPayService {
         console.log(signatureHash === sign_string);
 
         return signatureHash === sign_string;
+    }
+
+    async formatDate() {
+        const date = new Date()
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const hh = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        const ss = String(date.getSeconds()).padStart(2, '0');
+
+        return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
     }
 }
