@@ -20,7 +20,8 @@ export class ClickPayController {
     async prepare(@Res() res: Response, @Req() req: Request) {
         await sendMessage(req.body);
         const result = await this.clickPayService.prepare(req.body);
-        return this.sendURLEncoded(res, result);
+        return result;
+        // return this.sendURLEncoded(res, result);
     }
 
     @Public()
@@ -29,6 +30,7 @@ export class ClickPayController {
     async complete(@Res() res: Response, @Req() req: Request) {
         await sendMessage(req.body);
         const result = await this.clickPayService.complete(req.body);
-        return this.sendURLEncoded(res, result);
+        return result
+        // return this.sendURLEncoded(res, result);
     }
 }
