@@ -8,26 +8,12 @@ import { sendMessage } from '../utils';
 export class ClickPayController {
     constructor(private readonly clickPayService: ClickPayService) {}
 
-    private sendURLEncoded(res: Response, data: Record<string, any>) {
-        const encoded = new URLSearchParams(
-          Object.entries(data).reduce((acc, [key, val]) => {
-            acc[key] = val?.toString();
-            return acc;
-          }, {} as Record<string, string>)
-        ).toString();
-      
-        res.setHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-        return res.send(encoded);
-      }
-      
-
     @Public()
     @Post('prepare')
     @HttpCode(HttpStatus.OK)
     async prepare(@Res() res: Response, @Req() req: Request) {
         const result = await this.clickPayService.prepare(req.body);
-        await sendMessage(result, 'prepare response');
-        return this.sendURLEncoded(res, result);
+        return result;
     }
 
     @Public()
@@ -36,6 +22,6 @@ export class ClickPayController {
     async complete(@Res() res: Response, @Req() req: Request) {
         await sendMessage(req.body);
         const result = await this.clickPayService.complete(req.body);
-        return this.sendURLEncoded(res, result);
+        return result;
     }
 }
