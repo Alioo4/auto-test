@@ -9,6 +9,8 @@ import { PaymentType, TransactionStatus } from '@prisma/client';
 export class ClickPayService {
     constructor(private readonly prisma: PrismaService) {}
     async prepare(body: any) {
+        console.log(body);
+        
         const transaction = await this.prisma.transaction.findUnique({
             where: { id: body.merchant_trans_id },
             select: {
@@ -111,6 +113,8 @@ export class ClickPayService {
     }
 
     async complete(dto: any) {
+        console.log(dto);
+        
         const transaction = await this.prisma.transaction.findUnique({
             where: { id: dto.merchant_trans_id },
             select: {
