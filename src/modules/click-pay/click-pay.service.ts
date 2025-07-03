@@ -96,7 +96,7 @@ export class ClickPayService {
             },
         });
 
-        const date = await this.formatDate(new Date())
+        const date = Date.now()
 
         const response = {
             click_trans_id: body.click_trans_id,
@@ -208,7 +208,7 @@ export class ClickPayService {
             data: { countTrariff: user.countTrariff ?? 0 + (findTarif?.day ?? 0), isPaid: true },
         });
 
-        const date = await this.formatDate(new Date())
+        const date = Date.now()
 
         const response = {
             click_trans_id: dto.click_trans_id,
