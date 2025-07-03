@@ -90,8 +90,6 @@ export class ClickPayService {
             amount: +body.amount,
           },
         });
-
-        await sendMessage(body, 'prepare response');
       
         return {
           click_trans_id: BigInt(body.click_trans_id),

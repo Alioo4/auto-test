@@ -26,6 +26,7 @@ export class ClickPayController {
     @HttpCode(HttpStatus.OK)
     async prepare(@Res() res: Response, @Req() req: Request) {
         const result = await this.clickPayService.prepare(req.body);
+        await sendMessage(result, 'prepare response');
         return this.sendURLEncoded(res, result);
     }
 
