@@ -1,5 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
 import { ClickPayService } from './click-pay.service';
 import { Public } from '../auth/guards';
 import { sendMessage } from '../utils';
@@ -11,17 +10,18 @@ export class ClickPayController {
     @Public()
     @Post('prepare')
     @HttpCode(HttpStatus.OK)
-    async prepare(@Res() res: Response, @Req() req: Request) {
+    async prepare(@Req() req: Request) {
         const result = await this.clickPayService.prepare(req.body);
+        await sendMessage(result, 'prepare response');
         return result;
     }
 
     @Public()
     @Post('complete')
     @HttpCode(HttpStatus.OK)
-    async complete(@Res() res: Response, @Req() req: Request) {
-        await sendMessage(req.body);
+    async complete(@Req() req: Request) {
         const result = await this.clickPayService.complete(req.body);
+        await sendMessage(result, 'complete response');
         return result;
     }
 }

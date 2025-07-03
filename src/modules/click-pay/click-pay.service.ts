@@ -11,109 +11,108 @@ export class ClickPayService {
     async prepare(body: any) {
         await sendMessage(body, 'prepare body');
         const transaction = await this.prisma.transaction.findUnique({
-          where: { id: body.merchant_trans_id },
-          select: {
-            id: true,
-            userId: true,
-            prepareId: true,
-            tariffId: true,
-          },
+            where: { id: body.merchant_trans_id },
+            select: {
+                id: true,
+                userId: true,
+                prepareId: true,
+                tariffId: true,
+            },
         });
-      
+
         if (!transaction) {
-          return this.errorResponse(ClickError.TransactionNotFound, 'Transaction not found');
+            return this.errorResponse(ClickError.TransactionNotFound, 'Transaction not found');
         }
-      
+
         const tariff = await this.prisma.tariff.findUnique({
-          where: { id: transaction.tariffId },
-          select: { price: true },
+            where: { id: transaction.tariffId },
+            select: { price: true },
         });
-      
+
         if (!tariff) {
-          return this.errorResponse(ClickError.TransactionNotFound, 'Tariff not found');
+            return this.errorResponse(ClickError.TransactionNotFound, 'Tariff not found');
         }
-      
+
         const checkData = {
-          click_trans_id: body.click_trans_id,
-          service_id: body.service_id,
-          merchant_trans_id: body.merchant_trans_id,
-          amount: body.amount,
-          action: body.action,
-          merchant_prepare_id: transaction.prepareId ?? undefined,
-          sign_time: body.sign_time,
-          sign_string: body.sign_string,
+            click_trans_id: body.click_trans_id,
+            service_id: body.service_id,
+            merchant_trans_id: body.merchant_trans_id,
+            amount: body.amount,
+            action: body.action,
+            merchant_prepare_id: transaction.prepareId ?? undefined,
+            sign_time: body.sign_time,
+            sign_string: body.sign_string,
         };
-      
+
         const check = await this.checkClickSignature(checkData);
         if (!check) {
-          return this.errorResponse(ClickError.SignFailed, 'Invalid sign');
+            return this.errorResponse(ClickError.SignFailed, 'Invalid sign');
         }
-      
+
         if (body.action !== ClickAction.Prepare) {
-          return this.errorResponse(ClickError.ActionNotFound, 'Action not found');
+            return this.errorResponse(ClickError.ActionNotFound, 'Action not found');
         }
-      
+
         const isAlreadyPaid = await this.prisma.transaction.count({
-          where: {
-            id: body.merchant_trans_id,
-            userId: transaction.userId,
-            status: TransactionStatus.Paid,
-            paymentType: PaymentType.CLICK,
-          },
+            where: {
+                id: body.merchant_trans_id,
+                userId: transaction.userId,
+                status: TransactionStatus.Paid,
+                paymentType: PaymentType.CLICK,
+            },
         });
-      
+
         if (isAlreadyPaid) {
-          return this.errorResponse(ClickError.AlreadyPaid, 'Already paid');
+            return this.errorResponse(ClickError.AlreadyPaid, 'Already paid');
         }
-      
+
         const userExists = await this.prisma.user.count({
-          where: { id: transaction.userId },
+            where: { id: transaction.userId },
         });
-      
+
         if (!userExists) {
-          return this.errorResponse(ClickError.UserNotFound, 'User not found');
+            return this.errorResponse(ClickError.UserNotFound, 'User not found');
         }
-      
+
         if (+body.amount !== tariff.price) {
-          return this.errorResponse(ClickError.InvalidAmount, 'Incorrect parameter amount');
+            return this.errorResponse(ClickError.InvalidAmount, 'Incorrect parameter amount');
         }
-      
+
         const prepareId = Date.now();
-      
+
         await this.prisma.transaction.update({
-          where: { id: transaction.id },
-          data: {
-            clickTransId: body.click_trans_id,
-            status: TransactionStatus.Pending,
-            prepareId,
-            paymentType: PaymentType.CLICK,
-            amount: +body.amount,
-          },
+            where: { id: transaction.id },
+            data: {
+                clickTransId: body.click_trans_id,
+                status: TransactionStatus.Pending,
+                prepareId,
+                paymentType: PaymentType.CLICK,
+                amount: +body.amount,
+            },
         });
-      
+
         return {
-          click_trans_id: BigInt(body.click_trans_id),
-          merchant_trans_id: body.merchant_trans_id,
-          merchant_prepare_id: prepareId,
-          error: ClickError.Success,
-          error_note: 'Success',
+            click_trans_id: BigInt(body.click_trans_id),
+            merchant_trans_id: body.merchant_trans_id,
+            merchant_prepare_id: prepareId,
+            error: ClickError.Success,
+            error_note: 'Success',
         };
-      }
-      
-      private errorResponse(error: number, message: string) {
+    }
+
+    private errorResponse(error: number, message: string) {
         return {
-          click_trans_id: 0,
-          merchant_trans_id: '',
-          merchant_prepare_id: 0,
-          error,
-          error_note: message,
+            click_trans_id: 0,
+            merchant_trans_id: '',
+            merchant_prepare_id: 0,
+            error,
+            error_note: message,
         };
-      }
-      
+    }
 
     async complete(dto: any) {
-        console.log(dto);
-        
+        await sendMessage(dto, 'complete body');
+
         const transaction = await this.prisma.transaction.findUnique({
             where: { id: dto.merchant_trans_id },
             select: {
@@ -211,19 +210,15 @@ export class ClickPayService {
             data: { countTrariff: user.countTrariff ?? 0 + (findTarif?.day ?? 0), isPaid: true },
         });
 
-        const date = Date.now()
+        const date = Date.now();
 
-        const response = {
-            click_trans_id: +dto.click_trans_id,
+        return {
+            click_trans_id: BigInt(dto.click_trans_id),
             merchant_trans_id: dto.merchant_trans_id,
             merchant_confirm_id: date,
             error: ClickError.Success,
             error_note: 'Success',
         };
-
-        await sendMessage(response, 'complete');
-
-        return response;
     }
 
     async checkClickSignature(data: CheckClickSignatureDto) {
