@@ -101,7 +101,7 @@ export class ClickPayService {
         const date = Date.now()
 
         const response = {
-            click_trans_id: body.click_trans_id,
+            click_trans_id: +body.click_trans_id,
             merchant_trans_id: body.merchant_trans_id,
             merchant_prepare_id: date,
             error: ClickError.Success,
@@ -215,7 +215,7 @@ export class ClickPayService {
         const date = Date.now()
 
         const response = {
-            click_trans_id: dto.click_trans_id,
+            click_trans_id: +dto.click_trans_id,
             merchant_trans_id: dto.merchant_trans_id,
             merchant_confirm_id: date,
             error: ClickError.Success,
