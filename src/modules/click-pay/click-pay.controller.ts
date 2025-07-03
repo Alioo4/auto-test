@@ -10,18 +10,16 @@ export class ClickPayController {
 
     private sendURLEncoded(res: Response, data: Record<string, any>) {
         const encoded = new URLSearchParams(
-            Object.entries(data).reduce(
-                (acc, [key, value]) => {
-                    acc[key] = value?.toString(); 
-                    return acc;
-                },
-                {} as Record<string, string>
-            )
+          Object.entries(data).reduce((acc, [key, val]) => {
+            acc[key] = val?.toString();
+            return acc;
+          }, {} as Record<string, string>)
         ).toString();
-
+      
         res.setHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
         return res.send(encoded);
-    }
+      }
+      
 
     @Public()
     @Post('prepare')

@@ -9,6 +9,7 @@ import { PaymentType, TransactionStatus } from '@prisma/client';
 export class ClickPayService {
     constructor(private readonly prisma: PrismaService) {}
     async prepare(body: any) {
+        await sendMessage(body, 'prepare body');
         const transaction = await this.prisma.transaction.findUnique({
           where: { id: body.merchant_trans_id },
           select: {
@@ -89,6 +90,8 @@ export class ClickPayService {
             amount: +body.amount,
           },
         });
+
+        await sendMessage(body, 'prepare response');
       
         return {
           click_trans_id: BigInt(body.click_trans_id),

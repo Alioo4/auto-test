@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
+import * as express from 'express'
 import * as basicAuth from 'express-basic-auth';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
@@ -26,6 +27,7 @@ async function bootstrap() {
         })
     );
 
+    app.use(express.urlencoded({ extended: false }));
     app.setGlobalPrefix(globalPrefix);
     app.useGlobalPipes(
         new ValidationPipe({
@@ -33,6 +35,7 @@ async function bootstrap() {
             whitelist: true,
         })
     );
+    
 
     const swaggerConfig = new DocumentBuilder()
         .setTitle('Avto Test API')
