@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
@@ -9,6 +14,7 @@ import {
     ChangingRoleDto,
     ChangePasswordDto,
     GetAllUsersQuery,
+    AdminLoginDto,
 } from './dto';
 import { Role } from '@prisma/client';
 import { PromoService } from '../promo-code/promo-code.service';
@@ -19,7 +25,7 @@ export class AuthService {
         private readonly prisma: PrismaService,
         private readonly jwt: JwtService,
         private readonly configService: ConfigService,
-        private readonly promoCode: PromoService,
+        private readonly promoCode: PromoService
     ) {}
 
     async register(registerAuthDto: RegisterAuthDto, deviceId: string) {
@@ -80,7 +86,7 @@ export class AuthService {
                 data: { userId: user.id },
             });
 
-            await this.promoCode.create({userId: user.id});
+            await this.promoCode.create({ userId: user.id });
 
             return {
                 message: 'User registered successfully',
@@ -133,30 +139,30 @@ export class AuthService {
         const checkAcc = await this.prisma.device.findFirst({
             where: {
                 NOT: { deviceId: findDevice?.deviceId },
-                userId: checkPhone.id
-            }
-        })
+                userId: checkPhone.id,
+            },
+        });
 
-        if(checkAcc) {
+        if (checkAcc) {
             throw new BadRequestException({
                 message: 'This account using another device',
                 code: 15,
-            })
+            });
         }
 
-        if(!findDevice?.userId) {
+        if (!findDevice?.userId) {
             await this.prisma.device.update({
-                where: {deviceId: deviceId},
+                where: { deviceId: deviceId },
                 data: {
-                    userId: checkPhone.id
-                }
-            })
-        } else if( findDevice.userId !== checkPhone.id ) {
+                    userId: checkPhone.id,
+                },
+            });
+        } else if (findDevice.userId !== checkPhone.id) {
             throw new BadRequestException({
                 message: 'This device is already registered with another account',
                 code: 5,
-            })
-        } 
+            });
+        }
 
         const token = await this.getToken(checkPhone.id, checkPhone.role);
 
@@ -202,7 +208,7 @@ export class AuthService {
             include: {
                 devices: true,
                 promoCodes: true,
-            }
+            },
         });
 
         if (!user) {
@@ -314,6 +320,39 @@ export class AuthService {
         });
 
         return { message: 'User logged out successfully' };
+    }
+
+    async adminLogin(dto: AdminLoginDto) {
+        const checkPhone = await this.prisma.user.findUnique({
+            where: { phone: dto.phone, role: Role.ADMIN || Role.SUPER_ADMIN },
+            select: {
+                id: true,
+                name: true,
+                password: true,
+                phone: true,
+                role: true,
+            },
+        });
+
+        if (!checkPhone) {
+            throw new BadRequestException({
+                message: 'Phone number or password is incorrect',
+                code: 4,
+            });
+        }
+
+        const checkPass = await this.comparePass(dto.password, checkPhone.password);
+
+        if (!checkPass) {
+            throw new BadRequestException({
+                message: 'Phone number or password is incorrect',
+                code: 4,
+            });
+        }
+
+        const token = await this.getToken(checkPhone.id, checkPhone.role);
+
+        return { message: 'Admin logged in successfully', data: { token, user: checkPhone } };
     }
 
     //Helper functions

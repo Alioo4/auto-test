@@ -101,7 +101,7 @@ export class ClickPayService {
     async complete(dto: any) {
         const transaction = await this.prisma.transaction.findUnique({
             where: { id: dto.merchant_trans_id },
-            select: { id: true, userId: true, prepareId: true, tariffId: true },
+            select: { id: true, userId: true, prepareId: true, tariffId: true, deviceId: true },
         });
 
         if (!transaction) {
@@ -115,7 +115,7 @@ export class ClickPayService {
             }),
             this.prisma.user.findUnique({
                 where: { id: transaction.userId },
-                select: { countTrariff: true },
+                select: { countTrariff: true, endingDateTariff: true },
             }),
             this.prisma.transaction.count({
                 where: {
@@ -183,12 +183,23 @@ export class ClickPayService {
             return { error: ClickError.TransactionNotFound, error_note: 'Transaction not found' };
         }
 
+        const now = new Date();
+        const currentEndingDate =
+            user.endingDateTariff && user.endingDateTariff > now ? user.endingDateTariff : now;
+
+        const newEndingDateTariff = new Date(currentEndingDate);
+        newEndingDateTariff.setDate(
+            newEndingDateTariff.getDate() + (tariff.day ?? 0) + (user?.countTrariff ?? 0)
+        );
+
         await Promise.all([
             this.prisma.user.update({
                 where: { id: transaction.userId },
                 data: {
                     countTrariff: (user.countTrariff ?? 0) + (tariff.day ?? 0),
+                    endingDateTariff: newEndingDateTariff,
                     isPaid: true,
+                    accessDevice: transaction.deviceId,
                 },
             }),
             this.prisma.transaction.update({

@@ -15,6 +15,7 @@ import {
     ChangingRoleDto,
     ChangePasswordDto,
     GetAllUsersQuery,
+    AdminLoginDto,
 } from './dto';
 import { User } from './guards/get-user-id.decorator';
 import { AuthGuard, DeviceHeadersGuard, DeviceId, Public, Roles } from './guards';
@@ -90,5 +91,11 @@ export class AuthController {
     @ApiOperation({ summary: 'User logout' })
     logout(@User('sub') userId: string, @DeviceId() deviceId: string) {
         return this.authService.logout(userId, deviceId);
+    }
+
+    @Post('admin-login')
+    @HttpCode(HttpStatus.OK)
+    adminLogin(@Body() adminLoginDto: AdminLoginDto) {
+        return this.authService.adminLogin(adminLoginDto)
     }
 }

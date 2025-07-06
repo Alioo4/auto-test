@@ -1,7 +1,6 @@
 import { Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
 import { ClickPayService } from './click-pay.service';
 import { Public } from '../auth/guards';
-import { sendMessage } from '../utils';
 
 @Controller('click-pay')
 export class ClickPayController {
