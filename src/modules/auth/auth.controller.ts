@@ -48,6 +48,13 @@ export class AuthController {
         return this.authService.login(loginAuthDto, deviceId);
     }
 
+    @Public()
+    @Post('admin-login')
+    @HttpCode(HttpStatus.OK)
+    adminLogin(@Body() adminLoginDto: AdminLoginDto) {
+        return this.authService.adminLogin(adminLoginDto)
+    }
+
     @Post('change-password')
     @HttpCode(HttpStatus.OK)
     @Roles('USER', 'ADMIN', 'SUPER_ADMIN')
@@ -91,11 +98,5 @@ export class AuthController {
     @ApiOperation({ summary: 'User logout' })
     logout(@User('sub') userId: string, @DeviceId() deviceId: string) {
         return this.authService.logout(userId, deviceId);
-    }
-
-    @Post('admin-login')
-    @HttpCode(HttpStatus.OK)
-    adminLogin(@Body() adminLoginDto: AdminLoginDto) {
-        return this.authService.adminLogin(adminLoginDto)
     }
 }
