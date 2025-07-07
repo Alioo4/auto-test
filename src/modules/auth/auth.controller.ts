@@ -52,7 +52,7 @@ export class AuthController {
     @Post('admin-login')
     @HttpCode(HttpStatus.OK)
     adminLogin(@Body() adminLoginDto: AdminLoginDto) {
-        return this.authService.adminLogin(adminLoginDto)
+        return this.authService.adminLogin(adminLoginDto);
     }
 
     @Post('change-password')

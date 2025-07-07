@@ -110,6 +110,8 @@ export class AuthService {
                 email: true,
                 phone: true,
                 role: true,
+                countTrariff: true,
+                endingDateTariff: true,
                 createdAt: true,
                 updatedAt: true,
             },
@@ -331,6 +333,8 @@ export class AuthService {
                 password: true,
                 phone: true,
                 role: true,
+                endingDateTariff: true,
+                countTrariff: true,
             },
         });
 
