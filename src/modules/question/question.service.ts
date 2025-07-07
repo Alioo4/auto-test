@@ -45,22 +45,22 @@ export class QuestionService {
 
                 return {
                     ...q,
-                    id: q.id?.toString?.() || q.id,
+                    id: q.id,
                     questionSetNumber: q.questionSetNumber,
                     testNumber: q.testNumber,
                     optionsUz: optionsUz.map((o) => ({
                         ...o,
-                        id: o.id?.toString?.(),
+                        id: o.id,
                         questionId: o.questionId?.toString?.(),
                     })),
                     optionsRu: optionsRu.map((o) => ({
                         ...o,
-                        id: o.id?.toString?.(),
-                        questionId: o.questionId?.toString?.(),
+                        id: o.id,
+                        questionId: o.questionId,
                     })),
                     optionsEn: optionsEn.map((o) => ({
                         ...o,
-                        id: o.id?.toString?.(),
+                        id: o.id,
                         questionId: o.questionId?.toString?.(),
                     })),
                 };
@@ -154,7 +154,7 @@ export class QuestionService {
                     optionsUz: true,
                     optionsRu: true,
                     optionsEn: true,
-                },
+                }
             }),
             this.prisma.question.count({ where }),
         ]);
