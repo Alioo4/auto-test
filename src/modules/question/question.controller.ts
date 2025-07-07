@@ -39,9 +39,6 @@ export class QuestionController {
     findAll(@User('sub') userId?: string, @Query('page') page = '1', @Query('limit') limit = '10') {
         const parsedPage = Math.max(1, Number(page) || 1);
         const parsedLimit = Math.max(1, Number(limit) || 10);
-        console.log(userId);
-        
-
         return this.questionService.findAll(userId, parsedPage, parsedLimit);
     }
 

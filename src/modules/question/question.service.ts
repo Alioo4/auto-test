@@ -22,8 +22,8 @@ export class QuestionService {
     async findAll(userId?: string, page = 1, limit = 10) {
         if (userId) {
             console.log(userId);
-            
-            const MAX_LIMIT = 100;
+
+            const MAX_LIMIT = 250;
             const safeLimit = Math.min(limit ?? 10, MAX_LIMIT);
             const skip = ((page ?? 1) - 1) * safeLimit;
 
@@ -95,7 +95,7 @@ export class QuestionService {
             })
         );
 
-        return enriched;
+        return { data: enriched };
     }
 
     async findOne(id: number) {
