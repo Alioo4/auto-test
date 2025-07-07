@@ -19,50 +19,68 @@ export class QuestionService {
         });
     }
 
-    async findAll() {
+    async findAll(userId?: string) {
+        if (userId) {
+            const user = await this.prisma.user.findUnique({
+                where: { id: userId },
+                select: { countTrariff: true },
+            });
+
+            if ((user?.countTrariff || 0) > 0) {
+                const [questions, totalCount] = await Promise.all([
+                    this.prisma.question.findMany({
+                        orderBy: { id: 'desc' },
+                        include: {
+                            optionsUz: true,
+                            optionsRu: true,
+                            optionsEn: true,
+                        },
+                    }),
+                    this.prisma.question.count(),
+                ]);
+
+                return {
+                    data: questions,
+                    totalCount: totalCount,
+                };
+            }
+        }
+
         const questions: any[] = await this.prisma.$queryRawUnsafe(`
           SELECT * FROM (
             SELECT q.*,
             ROW_NUMBER() OVER (
-            PARTITION BY "testNumber", "questionSetNumber"
-            ORDER BY RANDOM()
-          ) AS rn
-          FROM "Question" q
+              PARTITION BY "testNumber", "questionSetNumber"
+              ORDER BY RANDOM()
+            ) AS rn
+            FROM "Question" q
             WHERE "testNumber" BETWEEN 1 AND 10
-            AND "questionSetNumber" BETWEEN 1 AND 10
+              AND "questionSetNumber" BETWEEN 1 AND 10
           ) sub
-            WHERE sub.rn = 1
-            ORDER BY "testNumber", "questionSetNumber";
+          WHERE sub.rn = 1
+          ORDER BY "testNumber", "questionSetNumber";
         `);
 
         const enriched = await Promise.all(
-            questions.map(async (q: any) => {
+            questions.map(async (q) => {
                 const [optionsUz, optionsRu, optionsEn] = await Promise.all([
                     this.prisma.optionsUz.findMany({ where: { questionId: q.id } }),
                     this.prisma.optionsRu.findMany({ where: { questionId: q.id } }),
                     this.prisma.optionsEn.findMany({ where: { questionId: q.id } }),
                 ]);
 
+                const formatOptions = (options: any[]) =>
+                    options.map((o) => ({
+                        ...o,
+                        id: o.id,
+                        questionId: o.questionId?.toString?.(),
+                    }));
+
                 return {
                     ...q,
-                    id: q.id,
-                    questionSetNumber: q.questionSetNumber,
-                    testNumber: q.testNumber,
-                    optionsUz: optionsUz.map((o) => ({
-                        ...o,
-                        id: o.id,
-                        questionId: o.questionId?.toString?.(),
-                    })),
-                    optionsRu: optionsRu.map((o) => ({
-                        ...o,
-                        id: o.id,
-                        questionId: o.questionId,
-                    })),
-                    optionsEn: optionsEn.map((o) => ({
-                        ...o,
-                        id: o.id,
-                        questionId: o.questionId?.toString?.(),
-                    })),
+                    optionsUz: formatOptions(optionsUz),
+                    optionsRu: formatOptions(optionsRu),
+                    optionsEn: formatOptions(optionsEn),
                 };
             })
         );
@@ -154,7 +172,7 @@ export class QuestionService {
                     optionsUz: true,
                     optionsRu: true,
                     optionsEn: true,
-                }
+                },
             }),
             this.prisma.question.count({ where }),
         ]);
