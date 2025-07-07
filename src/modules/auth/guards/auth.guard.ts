@@ -15,42 +15,51 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    try {
-      const isPublic = this.reflector.getAllAndOverride<boolean>(
-        IS_PUBLIC_KEY,
-        [context.getHandler(), context.getClass()],
-      );
-      if (isPublic) return true;
+    const isPublic = this.reflector.getAllAndOverride<boolean>(
+      IS_PUBLIC_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
-      const request = context.switchToHttp().getRequest<Request>();
-      const authHeader = request.headers.authorization;
+    const request = context.switchToHttp().getRequest<Request>();
+    const authHeader = request.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
-      if (!authHeader?.startsWith('Bearer ')) {
-        throw new UnauthorizedException({
-          message: 'Missing or invalid token',
-          code: 10,
-        });
+    if (token) {
+      try {
+        const payload = await this.authService.verifyToken(token);
+        (request as any).user = payload;
+
+        // Agar route `@Roles()` bilan himoyalangan bo‘lsa, tekshir
+        const requiredRoles = this.reflector.getAllAndOverride<Role[]>(
+          ROLES_KEY,
+          [context.getHandler(), context.getClass()],
+        );
+
+        if (requiredRoles?.length && !requiredRoles.includes(payload.role)) {
+          throw new ForbiddenException({
+            message: 'You do not have the required role',
+            code: 11,
+          });
+        }
+
+        return true;
+      } catch (err) {
+        if (!isPublic) {
+          throw new UnauthorizedException({
+            message: 'Invalid or expired token',
+            code: 10,
+          });
+        }
+        return true;
       }
-
-      const token = authHeader.split(' ')[1];
-      const { sub, role } = await this.authService.verifyToken(token);
-
-      (request as any).user = { sub, role };
-
-      const requiredRoles = this.reflector.getAllAndOverride<Role[]>(
-        ROLES_KEY,
-        [context.getHandler(), context.getClass()],
-      );
-
-      if (requiredRoles?.length && !requiredRoles.includes(role)) {
-        throw new ForbiddenException({
-          message: 'You do not have the required role',
-          code: 11,
-        });
-      }
-      return true;
-    } catch (error) {
-      throw new ForbiddenException("You don't have permission to access this resource", error.message);
     }
+
+    if (isPublic) return true;
+    
+    throw new UnauthorizedException({
+      message: 'Token is required',
+      code: 10,
+    });
   }
 }
+

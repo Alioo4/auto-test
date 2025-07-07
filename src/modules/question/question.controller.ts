@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { QuestionService } from './question.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
-import { ApiTags, ApiOperation, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiParam, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { Public, Roles, User } from '../auth/guards';
 import { GetQuestionsQueryDto } from './dto';
 
@@ -22,8 +22,27 @@ export class QuestionController {
     @Public()
     @Get()
     @ApiOperation({ summary: 'Get all questions (with optional search and pagination)' })
-    findAll(@User('sub') userId?: string) {
-        return this.questionService.findAll(userId);
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        example: 10,
+        description: 'Items per page (default: 10)',
+    })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        example: 1,
+        description: 'Page number (default: 1)',
+    })
+    findAll(@User('sub') userId?: string, @Query('page') page = '1', @Query('limit') limit = '10') {
+        const parsedPage = Math.max(1, Number(page) || 1);
+        const parsedLimit = Math.max(1, Number(limit) || 10);
+        console.log(userId);
+        
+
+        return this.questionService.findAll(userId, parsedPage, parsedLimit);
     }
 
     @Get('get-questions-for-admin')

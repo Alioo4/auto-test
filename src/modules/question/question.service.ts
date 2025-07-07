@@ -19,8 +19,14 @@ export class QuestionService {
         });
     }
 
-    async findAll(userId?: string) {
+    async findAll(userId?: string, page = 1, limit = 10) {
         if (userId) {
+            console.log(userId);
+            
+            const MAX_LIMIT = 100;
+            const safeLimit = Math.min(limit ?? 10, MAX_LIMIT);
+            const skip = ((page ?? 1) - 1) * safeLimit;
+
             const user = await this.prisma.user.findUnique({
                 where: { id: userId },
                 select: { countTrariff: true },
@@ -29,6 +35,8 @@ export class QuestionService {
             if ((user?.countTrariff || 0) > 0) {
                 const [questions, totalCount] = await Promise.all([
                     this.prisma.question.findMany({
+                        skip,
+                        take: safeLimit,
                         orderBy: { id: 'desc' },
                         include: {
                             optionsUz: true,
@@ -42,6 +50,8 @@ export class QuestionService {
                 return {
                     data: questions,
                     totalCount: totalCount,
+                    page: page,
+                    limit: safeLimit,
                 };
             }
         }
