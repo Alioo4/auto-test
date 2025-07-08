@@ -37,7 +37,11 @@ export class QuestionService {
                     this.prisma.question.findMany({
                         skip,
                         take: safeLimit,
-                        orderBy: { id: 'desc' },
+                        orderBy: [
+                            { questionSetNumber: 'asc' },
+                            { testNumber: 'asc' }, // agar kerak bo‘lsa
+                            { id: 'asc' },
+                        ],
                         include: {
                             optionsUz: true,
                             optionsRu: true,
