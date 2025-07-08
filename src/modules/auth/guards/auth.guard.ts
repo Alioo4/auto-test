@@ -28,8 +28,7 @@ export class AuthGuard implements CanActivate {
       try {
         const payload = await this.authService.verifyToken(token);
         (request as any).user = payload;
-
-        // Agar route `@Roles()` bilan himoyalangan bo‘lsa, tekshir
+        
         const requiredRoles = this.reflector.getAllAndOverride<Role[]>(
           ROLES_KEY,
           [context.getHandler(), context.getClass()],
@@ -55,7 +54,7 @@ export class AuthGuard implements CanActivate {
     }
 
     if (isPublic) return true;
-    
+
     throw new UnauthorizedException({
       message: 'Token is required',
       code: 10,
